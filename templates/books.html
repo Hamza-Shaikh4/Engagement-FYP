@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reading App — My Books</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="app">
+    <div class="page">
+
+      <header class="topbar">
+        <a class="iconbtn" href="/" title="Home" aria-label="Home">🏠</a>
+        <div class="title">My Books</div>
+        <span style="width:38px;"></span>
+      </header>
+
+      <section class="section">
+        <div class="grid">
+          <!-- Unlocked -->
+
+          <!-- Book 1 -->
+          <a class="card" href="/reading/book1">
+            <div style="font-size:34px;">📕</div>
+            <div class="label">Book 1</div>
+          </a>
+
+          <!-- Book 2 -->
+          <a class="card" href="/reading/book2">
+            <div style="font-size:34px;">📘</div>
+            <div class="label">Book 2</div>
+          </a>
+
+          <!-- Book 3 -->
+          <a class="card" href="/reading/book3">
+            <div style="font-size:34px;">📗</div>
+            <div class="label">Book 3</div>
+          </a>
+
+          <!-- Locked placeholders -->
+          <div class="card locked" aria-disabled="true">
+            <div class="lock">🔒</div>
+            <div style="font-size:34px;">📙</div>
+            <div class="label">Book 4</div>
+          </div>
+
+          <div class="card locked" aria-disabled="true">
+            <div class="lock">🔒</div>
+            <div style="font-size:34px;">📕</div>
+            <div class="label">Book 5</div>
+          </div>
+
+          <div class="card locked" aria-disabled="true">
+            <div class="lock">🔒</div>
+            <div style="font-size:34px;">📘</div>
+            <div class="label">Book 6</div>
+          </div>
+        </div>
+
+        <div class="progress">
+          <div class="row"><span>Level</span><span>2</span></div>
+          <div class="bar"><div></div></div>
+        </div>
+
+        <div class="toast">
+          Prototype note: Book unlocks will be controlled later by backend/JS.
+        </div>
+      </section>
+
+    </div>
+  </main>
+</body>
+</html>

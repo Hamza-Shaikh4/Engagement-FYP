@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reading App — Reading</title>
+
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="app">
+    <div class="page">
+
+      <header class="topbar">
+        <a class="iconbtn" href="/" title="Home" aria-label="Home">🏠</a>
+        <div class="title">Reading</div>
+        <a class="iconbtn" href="/books" title="Books" aria-label="Books">📚</a>
+      </header>
+
+      <section class="section">
+        <!-- This is where the story gets inserted -->
+        <div class="reader" id="reader">Loading story...</div>
+
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Pass the story_id from Flask into JS (NO CORS) -->
+  <script>
+    window.STORY_ID = "{{ story_id }}";
+  </script>
+
+  <!-- Load the JS that fetches /static/stories.json -->
+  <script src="/static/reading.js"></script>
+  <script src="/static/tracker.js"></script>
+</body>
+</html>
+

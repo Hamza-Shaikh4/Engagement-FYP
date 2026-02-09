@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reading App — Avatars</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="app">
+    ,<div class="page">
+
+      <header class="topbar">
+        <a class="iconbtn" href="/" title="Home" aria-label="Home">🏠</a>
+        <div class="title">My Avatars</div>
+        <span style="width:38px;"></span>
+      </header>
+
+      <section class="section stack">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="font-weight:800;">Selected</div>
+            <div style="color:var(--muted);font-size:13px;">This will update when clicked (later)</div>
+          </div>
+          <div class="avatarBig">🙂</div>
+        </div>
+
+        <div class="grid">
+          <!-- Unlocked -->
+          <div class="card">
+            <div style="font-size:34px;">🙂</div>
+            <div class="label">Unlocked</div>
+          </div>
+          <div class="card">
+            <div style="font-size:34px;">🧑‍🚀</div>
+            <div class="label">Unlocked</div>
+          </div>
+
+          <!-- Locked -->
+          <div class="card locked" aria-disabled="true">
+            <div class="lock">🔒</div>
+            <div style="font-size:34px;">🧙</div>
+            <div class="label">Book 2</div>
+          </div>
+
+          <div class="card locked" aria-disabled="true">
+            <div class="lock">🔒</div>
+            <div style="font-size:34px;">🦸</div>
+            <div class="label">Book 3</div>
+          </div>
+
+          <div class="card locked" aria-disabled="true">
+            <div class="lock">🔒</div>
+            <div style="font-size:34px;">🧝</div>
+            <div class="label">Book 4</div>
+          </div>
+
+          <div class="card locked" aria-disabled="true">
+            <div class="lock">🔒</div>
+            <div style="font-size:34px;">🤖</div>
+            <div class="label">Streak 5</div>
+          </div>
+        </div>
+
+        <div class="toast">
+          Prototype note: Later you’ll add JS click handlers to select an avatar and POST it to Flask.
+        </div>
+      </section>
+
+    </div>
+  </main>
+</body>
+</html>
