@@ -11,33 +11,81 @@
     <div class="page">
 
       <header class="topbar">
-        <button class="iconbtn" title="Home" aria-label="Home">🏠</button>
-        <div class="title">Reading App</div>
-        <button class="iconbtn" title="Menu" aria-label="Menu">📚</button>
+        <a class="iconbtn" href="/" title="Home" aria-label="Home">🏠</a>
+        <div class="title">Reading Adventure</div>
+        <a class="iconbtn" href="/books" title="Books" aria-label="Books">📚</a>
       </header>
 
+      <!-- Companion HUD -->
+      <section class="section hud">
+        <div class="hudRow">
+          <div class="pet">
+            <div class="petAvatar">😊</div>
+            <div>
+              <div class="petName">Buddy</div>
+              <div class="petMood">Feeling: Happy</div>
+            </div>
+          </div>
+
+          <div class="chips">
+            <div class="chip">⭐ Level 2</div>
+            <div class="chip">⚡ XP 120</div>
+          </div>
+        </div>
+
+        <div class="health">
+          <div class="healthTop">
+            <span>❤️ Health</span><span>80%</span>
+          </div>
+          <div class="healthBar"><div style="width:80%"></div></div>
+        </div>
+      </section>
+
+      <!-- Primary action -->
       <section class="section stack">
-        <a class="bigbtn" href="/books">
-          <span class="emoji">📚</span>
-          <span>My Books</span>
+        <a class="bigbtn primary" href="/reading/book1">
+          <span class="emoji">▶️</span>
+          <span>
+            <div class="btnTitle">Continue Reading</div>
+            <div class="btnSub">Pick up where you left off</div>
+          </span>
         </a>
 
-        <a class="bigbtn" href="/reading">
-          <span class="emoji">📖</span>
-          <span>Daily Reading</span>
-        </a>
+        <div class="grid2">
+          <a class="bigbtn quests" href="/results">
+            <span class="emoji">🎯</span>
+            <span>
+              <div class="btnTitle">Quests</div>
+              <div class="btnSub">Daily goals + objectives</div>
+            </span>
+          </a>
 
-        <a class="bigbtn" href="/results">
-          <span class="emoji">📋</span>
-          <span>Check Results</span>
-        </a>
+          <a class="bigbtn achievements" href="/results">
+            <span class="emoji">🏅</span>
+            <span>
+              <div class="btnTitle">Achievements</div>
+              <div class="btnSub">Badges you’ve earned</div>
+            </span>
+          </a>
+        </div>
 
-        <a class="bigbtn" href="/avatar">
-          <span class="emoji">🧑</span>
-          <span>Avatar Customisation</span>
-        </a>
+        <div class="grid2">
+          <a class="bigbtn books" href="/books">
+            <span class="emoji">📚</span>
+            <span>
+              <div class="btnTitle">My Books</div>
+              <div class="btnSub">Choose a story</div>
+            </span>
+          </a>
 
-
+          <a class="bigbtn avatar" href="/avatar">
+            <span class="emoji">🧑‍🎨</span>
+            <span>
+              <div class="btnTitle">Avatar Closet</div>
+              <div class="btnSub">Unlock outfits</div>
+            </span>
+          </a>
+        </div>
       </section>
 
     </div>
