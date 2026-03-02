@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Reading App — Home</title>
+  <title>Reading Adventure</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body>
+
+<body data-bg="{{ state['selected_bg'] }}">
   <main class="app">
     <div class="page">
 
@@ -16,34 +17,37 @@
         <a class="iconbtn" href="/books" title="Books" aria-label="Books">📚</a>
       </header>
 
-      <!-- Companion HUD -->
       <section class="section hud">
         <div class="hudRow">
           <div class="pet">
-            <div class="petAvatar">😊</div>
+            <div class="petAvatar" id="hudAvatar">{{ state['selected_avatar'] }}</div>
             <div>
               <div class="petName">Buddy</div>
-              <div class="petMood">Feeling: Happy</div>
+              <div class="petMood" id="hudMood">Feeling: {{ state['last_engagement_label'] }}</div>
             </div>
           </div>
 
           <div class="chips">
-            <div class="chip">⭐ Level 2</div>
-            <div class="chip">⚡ XP 120</div>
+            <div class="chip" id="hudLevel">⭐ Level {{ state['level'] }}</div>
+            <div class="chip" id="hudXP">⚡ XP {{ state['xp'] }}</div>
+            <div class="chip" id="hudStreak">🔥 Streak {{ state['streak'] }}</div>
           </div>
         </div>
 
         <div class="health">
           <div class="healthTop">
-            <span>❤️ Health</span><span>80%</span>
+            <span>❤️ Health</span><span id="hudHealthText">{{ state['health'] }}%</span>
           </div>
-          <div class="healthBar"><div style="width:80%"></div></div>
+          <div class="healthBar">
+            <div id="hudHealthBar"></div>
+          </div>
         </div>
+
+        <div class="toast" id="supportToast">{{ state['last_support_message'] }}</div>
       </section>
 
-      <!-- Primary action -->
       <section class="section stack">
-        <a class="bigbtn primary" href="/reading/book1">
+        <a class="bigbtn primary" href="/reading/{{ continue_story }}">
           <span class="emoji">▶️</span>
           <span>
             <div class="btnTitle">Continue Reading</div>
@@ -55,8 +59,8 @@
           <a class="bigbtn quests" href="/results">
             <span class="emoji">🎯</span>
             <span>
-              <div class="btnTitle">Quests</div>
-              <div class="btnSub">Daily goals + objectives</div>
+              <div class="btnTitle">Objectives</div>
+              <div class="btnSub">Small goals to win</div>
             </span>
           </a>
 
@@ -64,7 +68,7 @@
             <span class="emoji">🏅</span>
             <span>
               <div class="btnTitle">Achievements</div>
-              <div class="btnSub">Badges you’ve earned</div>
+              <div class="btnSub">Badges you earned</div>
             </span>
           </a>
         </div>
@@ -74,7 +78,7 @@
             <span class="emoji">📚</span>
             <span>
               <div class="btnTitle">My Books</div>
-              <div class="btnSub">Choose a story</div>
+              <div class="btnSub">Unlock stories in order</div>
             </span>
           </a>
 
@@ -82,7 +86,7 @@
             <span class="emoji">🧑‍🎨</span>
             <span>
               <div class="btnTitle">Avatar Closet</div>
-              <div class="btnSub">Unlock outfits</div>
+              <div class="btnSub">Change avatar + background</div>
             </span>
           </a>
         </div>
@@ -90,5 +94,7 @@
 
     </div>
   </main>
+
+  <script src="/static/app_state.js"></script>
 </body>
 </html>

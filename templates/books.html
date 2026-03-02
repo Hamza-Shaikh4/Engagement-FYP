@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Reading App — My Books</title>
+  <title>My Books</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body>
+
+<body data-bg="{{ state.selected_bg }}">
   <main class="app">
     <div class="page">
 
@@ -18,57 +19,37 @@
 
       <section class="section">
         <div class="grid">
-          <!-- Unlocked -->
+          {% for story in stories %}
+            {% set unlocked = (story.id in unlocks.unlocked_books) %}
+            {% set done = (story.id in state.completed_books) %}
 
-          <!-- Book 1 -->
-          <a class="card" href="/reading/book1">
-            <div style="font-size:34px;">📕</div>
-            <div class="label">Book 1</div>
-          </a>
-
-          <!-- Book 2 -->
-          <a class="card" href="/reading/book2">
-            <div style="font-size:34px;">📘</div>
-            <div class="label">Book 2</div>
-          </a>
-
-          <!-- Book 3 -->
-          <a class="card" href="/reading/book3">
-            <div style="font-size:34px;">📗</div>
-            <div class="label">Book 3</div>
-          </a>
-
-          <!-- Locked placeholders -->
-          <div class="card locked" aria-disabled="true">
-            <div class="lock">🔒</div>
-            <div style="font-size:34px;">📙</div>
-            <div class="label">Book 4</div>
-          </div>
-
-          <div class="card locked" aria-disabled="true">
-            <div class="lock">🔒</div>
-            <div style="font-size:34px;">📕</div>
-            <div class="label">Book 5</div>
-          </div>
-
-          <div class="card locked" aria-disabled="true">
-            <div class="lock">🔒</div>
-            <div style="font-size:34px;">📘</div>
-            <div class="label">Book 6</div>
-          </div>
+            {% if unlocked %}
+              <a class="card" href="/reading/{{ story.id }}">
+                <div style="font-size:34px;">📖</div>
+                <div class="label">{{ story.title }}</div>
+                <div class="muted" style="font-size:12px;font-weight:800;">
+                  {% if done %}✅ Completed{% else %}Unlocked{% endif %}
+                </div>
+              </a>
+            {% else %}
+              <div class="card locked" aria-disabled="true" data-locked="true">
+                <div class="lock">🔒</div>
+                <div style="font-size:34px;">📖</div>
+                <div class="label">{{ story.title }}</div>
+                <div class="muted" style="font-size:12px;font-weight:800;">Finish previous book</div>
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
 
-        <div class="progress">
-          <div class="row"><span>Level</span><span>2</span></div>
-          <div class="bar"><div></div></div>
-        </div>
-
-        <div class="toast">
-          Prototype note: Book unlocks will be controlled later by backend/JS.
+        <div class="toast" id="lockedToast" style="display:none;">
+          This book is locked — finish the previous one first ✨
         </div>
       </section>
 
     </div>
   </main>
+
+  <script src="/static/books.js"></script>
 </body>
 </html>

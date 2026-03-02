@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Reading App — Reading</title>
-
+  <title>Reading</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body>
+
+<body data-bg="{{ state.selected_bg }}">
   <main class="app">
     <div class="page">
 
@@ -18,27 +18,26 @@
       </header>
 
       <section class="section">
-        <!-- This is where the story gets inserted -->
         <div class="reader" id="reader">Loading story...</div>
 
+        <div class="navrow">
+          <a class="smallbtn" href="/books">← Library</a>
+          <button class="smallbtn" id="finishReadingBtn" type="button">Finish Book ✅</button>
+        </div>
 
+        <div class="toast" id="readingToast">
+          Tip: Read normally. Engagement detection runs in the background.
+        </div>
       </section>
-
-      <button id="finishReadingBtn" type="button">
-        Continue
-      </button>
 
     </div>
   </main>
 
-  <!-- Pass the story_id from Flask into JS (NO CORS) -->
   <script>
     window.STORY_ID = "{{ story_id }}";
   </script>
 
-  <!-- Load the JS that fetches /static/stories.json -->
   <script src="/static/reading.js"></script>
   <script src="/static/tracker.js"></script>
 </body>
 </html>
-

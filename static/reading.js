@@ -3,7 +3,7 @@ async function loadStory() {
   reader.textContent = "Loading story...";
 
   try {
-    const res = await fetch("/static/stories.json");
+    const res = await fetch("/api/stories");
     const stories = await res.json();
 
     const storyId = window.STORY_ID || "book1";
@@ -14,7 +14,6 @@ async function loadStory() {
       return;
     }
 
-    // Render title + paragraphs
     reader.innerHTML = "";
 
     const title = document.createElement("h2");
@@ -34,4 +33,31 @@ async function loadStory() {
   }
 }
 
+async function finishBook() {
+  const storyId = window.STORY_ID || "book1";
+
+  const res = await fetch("/api/complete_book", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ story_id: storyId })
+  });
+
+  const data = await res.json();
+  if (!data.ok) {
+    alert(data.error || "Could not finish book");
+    return;
+  }
+
+  // Friendly reward popup
+  const gained = 40;
+  alert(`Nice work! ✅\n\n+${gained} XP\nHealth boosted ❤️\n\nNext content may be unlocked in the library!`);
+
+  window.location.href = "/books";
+}
+
 loadStory();
+
+const finishBtn = document.getElementById("finishReadingBtn");
+if (finishBtn) {
+  finishBtn.addEventListener("click", finishBook);
+}

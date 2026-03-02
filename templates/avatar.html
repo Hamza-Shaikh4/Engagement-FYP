@@ -3,16 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Reading App — Avatars</title>
+  <title>Avatar Closet</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body>
+
+<body data-bg="{{ state.selected_bg }}">
   <main class="app">
-    ,<div class="page">
+    <div class="page">
 
       <header class="topbar">
         <a class="iconbtn" href="/" title="Home" aria-label="Home">🏠</a>
-        <div class="title">My Avatars</div>
+        <div class="title">Avatar Closet</div>
         <span style="width:38px;"></span>
       </header>
 
@@ -20,54 +21,62 @@
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <div>
             <div style="font-weight:800;">Selected</div>
-            <div style="color:var(--muted);font-size:13px;">This will update when clicked (later)</div>
+            <div style="color:var(--muted);font-size:13px;">Tap an unlocked avatar</div>
           </div>
-          <div class="avatarBig">🙂</div>
+          <div class="avatarBig" id="selectedAvatar" style="font-size:42px;">{{ state.selected_avatar }}</div>
         </div>
 
-        <div class="grid">
-          <!-- Unlocked -->
-          <div class="card">
-            <div style="font-size:34px;">🙂</div>
-            <div class="label">Unlocked</div>
-          </div>
-          <div class="card">
-            <div style="font-size:34px;">🧑‍🚀</div>
-            <div class="label">Unlocked</div>
-          </div>
+        <div class="toast" id="avatarToast">Unlock more avatars by finishing books and building streaks ✨</div>
 
-          <!-- Locked -->
-          <div class="card locked" aria-disabled="true">
-            <div class="lock">🔒</div>
-            <div style="font-size:34px;">🧙</div>
-            <div class="label">Book 2</div>
-          </div>
-
-          <div class="card locked" aria-disabled="true">
-            <div class="lock">🔒</div>
-            <div style="font-size:34px;">🦸</div>
-            <div class="label">Book 3</div>
-          </div>
-
-          <div class="card locked" aria-disabled="true">
-            <div class="lock">🔒</div>
-            <div style="font-size:34px;">🧝</div>
-            <div class="label">Book 4</div>
-          </div>
-
-          <div class="card locked" aria-disabled="true">
-            <div class="lock">🔒</div>
-            <div style="font-size:34px;">🤖</div>
-            <div class="label">Streak 5</div>
-          </div>
+        <div class="grid" id="avatarGrid">
+          {% set all_avatars = ["🙂","🧑‍🚀","🧙","🦸","🤖"] %}
+          {% for a in all_avatars %}
+            {% set unlocked = (a in unlocks.unlocked_avatars) %}
+            {% if unlocked %}
+              <button class="card" data-avatar="{{ a }}" type="button">
+                <div style="font-size:34px;">{{ a }}</div>
+                <div class="label">Unlocked</div>
+              </button>
+            {% else %}
+              <div class="card locked" aria-disabled="true">
+                <div class="lock">🔒</div>
+                <div style="font-size:34px;">{{ a }}</div>
+                <div class="label">Locked</div>
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
 
-        <div class="toast">
-          Prototype note: Later you’ll add JS click handlers to select an avatar and POST it to Flask.
+        <div class="toast">Backgrounds</div>
+
+        <div class="grid" id="bgGrid">
+          {% set all_bgs = [
+            {"id":"bg-default","label":"Default 🌈"},
+            {"id":"bg-space","label":"Space 🚀"},
+            {"id":"bg-forest","label":"Forest 🌲"}
+          ] %}
+          {% for bg in all_bgs %}
+            {% set unlocked = (bg.id in unlocks.unlocked_bgs) %}
+            {% if unlocked %}
+              <button class="card" data-bg="{{ bg.id }}" type="button">
+                <div style="font-size:34px;">🖼️</div>
+                <div class="label">{{ bg.label }}</div>
+              </button>
+            {% else %}
+              <div class="card locked" aria-disabled="true">
+                <div class="lock">🔒</div>
+                <div style="font-size:34px;">🖼️</div>
+                <div class="label">{{ bg.label }}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
+
       </section>
 
     </div>
   </main>
+
+  <script src="/static/avatar.js"></script>
 </body>
 </html>
