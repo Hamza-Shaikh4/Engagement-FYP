@@ -1,7 +1,3 @@
-// =======================================
-// tracker.js (scroll depth + focus loss + engagement POST)
-// =======================================
-
 const WINDOW_SECONDS = 10;
 const IDLE_THRESHOLD_MS = 12000;
 
@@ -26,7 +22,10 @@ let maxScrollPosThisWindow = hasReader ? reader.scrollTop : window.scrollY;
 let hiddenStartMs = null;
 let hiddenMsThisWindow = 0;
 
-// small debug panel (useful for FYP demo)
+let disengagedWindowsCount = 0;
+let latestFocusLossRatio = 0;
+let latestIdleRatio = 0;
+
 function createPanel() {
   let panel = document.getElementById("trackerPanel");
   if (panel) return panel;
@@ -47,7 +46,7 @@ function createPanel() {
   panel.style.fontSize = "13px";
   panel.style.whiteSpace = "pre-line";
   panel.style.zIndex = "9999";
-
+  panel.style.pointerEvents = "none";
   document.body.appendChild(panel);
 
   return panel;
@@ -91,11 +90,17 @@ if (hasReader) {
 }
 
 window.addEventListener("click", (e) => {
+  if (e.target.closest("[data-no-track='true']")) return;
   interactionCount++;
   markActivity();
   if (e.target.closest("a")) navigationCount++;
 });
-window.addEventListener("keydown", () => { interactionCount++; markActivity(); });
+
+window.addEventListener("keydown", () => {
+  interactionCount++;
+  markActivity();
+});
+
 window.addEventListener("mousemove", markActivity);
 
 setInterval(() => {
@@ -150,6 +155,8 @@ function calculateFeatures() {
 }
 
 setInterval(async () => {
+  if (window.__TRACKING_PAUSED__) return;
+
   const features = calculateFeatures();
 
   try {
@@ -159,6 +166,21 @@ setInterval(async () => {
       body: JSON.stringify(features)
     });
     const result = await res.json();
+
+    latestFocusLossRatio = features.focus_loss_ratio;
+    latestIdleRatio = features.idle_ratio;
+
+    if (result.label === "disengaged") {
+      disengagedWindowsCount += 1;
+    }
+
+    if (typeof window.setLatestTrackerResult === "function") {
+      window.setLatestTrackerResult({
+        disengagedWindows: disengagedWindowsCount,
+        latestFocusLoss: latestFocusLossRatio,
+        latestIdleRatio: latestIdleRatio
+      });
+    }
 
     updatePanel(
       `Engagement: ${result.label}\n` +

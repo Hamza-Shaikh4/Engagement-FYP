@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import sqlite3
 import uuid
 from datetime import datetime, date, timezone
@@ -16,34 +17,32 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    app.secret_key = "dev-secret-change-me"  # prototype only
+    app.secret_key = "dev-secret-change-me"
 
     app.config["DB_PATH"] = os.path.join(APP_DIR, "app.db")
     app.config["STORIES_PATH"] = os.path.join(APP_DIR, "static", "stories.json")
 
     # ----------------------------
-    # Constants (your rules)
+    # Constants
     # ----------------------------
     HEALTH_MIN = 30
     HEALTH_MAX = 100
 
-    # tracker sends every 10s -> 3 windows = 30 seconds
-    ENGAGED_WINDOWS_FOR_PLUS1 = 3
+    ENGAGED_WINDOWS_FOR_PLUS1 = 3   # 3 x 10s = 30s
     ENGAGED_PLUS = 1
 
-    # Idle cap
     IDLE_HIGH = 0.92
     IDLE_RECOVER = 0.60
-    IDLE_WINDOWS_TRIGGER = 3   # ~30s very idle
-    IDLE_PENALTY = 2           # lose 2 once, then latch until active
+    IDLE_WINDOWS_TRIGGER = 3
+    IDLE_PENALTY = 2
 
-    # Sustained disengagement penalty (Option 2)
-    DISENGAGED_WINDOWS_TRIGGER = 3  # ~30s
+    DISENGAGED_WINDOWS_TRIGGER = 3
     DISENGAGED_PENALTY = 2
 
-    # Option 1 inactivity decay
     INACTIVITY_DAYS_TRIGGER = 2
     INACTIVITY_PENALTY = 5
+
+    RANDOM_END_QUIZ_CHANCE = 0.25
 
     # ----------------------------
     # DB helpers
@@ -117,7 +116,36 @@ def create_app() -> Flask:
             """
         )
 
-        # --- Safe migrations (if DB already exists) ---
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS reading_sessions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id TEXT NOT NULL,
+              story_id TEXT NOT NULL,
+              started_at TEXT NOT NULL,
+              completed_at TEXT,
+              reading_time_s REAL DEFAULT 0,
+              scroll_depth REAL DEFAULT 0,
+              suspicious INTEGER NOT NULL DEFAULT 0,
+              suspicious_reason TEXT DEFAULT ''
+            )
+            """
+        )
+
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS quiz_results (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id TEXT NOT NULL,
+              story_id TEXT NOT NULL,
+              score INTEGER NOT NULL,
+              total INTEGER NOT NULL,
+              passed INTEGER NOT NULL,
+              created_at TEXT NOT NULL
+            )
+            """
+        )
+
         def add_column_if_missing(table: str, column: str, coltype: str):
             cols = [r["name"] for r in con.execute(f"PRAGMA table_info({table})").fetchall()]
             if column not in cols:
@@ -135,6 +163,12 @@ def create_app() -> Flask:
     def load_stories() -> list[dict]:
         with open(app.config["STORIES_PATH"], "r", encoding="utf-8") as f:
             return json.load(f)
+
+    def get_story(story_id: str) -> dict | None:
+        for story in load_stories():
+            if story["id"] == story_id:
+                return story
+        return None
 
     def ensure_user() -> str:
         if "user_id" not in session:
@@ -255,19 +289,18 @@ def create_app() -> Flask:
         if name not in st["achievements"]:
             st["achievements"].append(name)
 
-    # Health reset rule: completion or level-up => reset to 100
     def award_xp_and_reset_health(st: dict, xp_gain: int) -> dict:
         old_level = st["level"]
         st["xp"] += xp_gain
         st["level"] = calc_level_from_xp(st["xp"])
 
-        # Reset health on completion; if level increased, also achievement
+        # completion or level-up resets health
         st["health"] = HEALTH_MAX
+
         if st["level"] > old_level:
             add_achievement(st, f"Level Up! Reached Level {st['level']}")
         return st
 
-    # Option 1: inactivity decay (once per day)
     def apply_inactivity_health_decay(st: dict) -> dict:
         today = date.today()
         today_s = today.isoformat()
@@ -323,9 +356,41 @@ def create_app() -> Flask:
             "unlocked_bgs": unlocked_bgs,
         }
 
-    # ----------------------------
-    # Init
-    # ----------------------------
+    def update_streak_and_activity(st: dict) -> None:
+        today = date.today()
+        last = st["last_active_date"]
+
+        if last is None:
+            st["streak"] = 1
+        else:
+            last_d = date.fromisoformat(last)
+            if last_d == today:
+                pass
+            else:
+                delta = (today - last_d).days
+                if delta == 1:
+                    st["streak"] += 1
+                else:
+                    st["streak"] = 1
+
+        st["last_active_date"] = today.isoformat()
+
+        if st["streak"] == 3:
+            add_achievement(st, "3-Day Streak 🔥")
+        if st["streak"] == 5:
+            add_achievement(st, "5-Day Streak 🔥🔥")
+
+    def mark_book_complete(user_id: str, story_id: str) -> dict:
+        st = get_state(user_id)
+
+        if story_id not in st["completed_books"]:
+            st["completed_books"].append(story_id)
+            add_achievement(st, f"Finished {story_id.upper()}")
+            st = award_xp_and_reset_health(st, xp_gain=40)
+
+        update_streak_and_activity(st)
+        return save_state(user_id, st)
+
     init_db()
 
     @app.before_request
@@ -333,7 +398,7 @@ def create_app() -> Flask:
         ensure_user()
 
     # ----------------------------
-    # Pages (these are your paths)
+    # Pages
     # ----------------------------
     @app.get("/")
     def home():
@@ -345,7 +410,6 @@ def create_app() -> Flask:
         stories = load_stories()
         unlocks = compute_unlocks(st, stories)
 
-        # Continue: first unlocked not completed
         continue_story = "book1"
         for sid in unlocks["unlocked_books"]:
             if sid not in st["completed_books"]:
@@ -393,7 +457,19 @@ def create_app() -> Flask:
         stories = load_stories()
         unlocks = compute_unlocks(st, stories)
         return render_template("results.html", state=st, stories=stories, unlocks=unlocks)
-    
+
+    @app.get("/avatar")
+    def avatar():
+        user_id = ensure_user()
+        st = get_state(user_id)
+        st = apply_inactivity_health_decay(st)
+        st = save_state(user_id, st)
+
+        stories = load_stories()
+        unlocks = compute_unlocks(st, stories)
+        return render_template("avatar.html", state=st, unlocks=unlocks)
+
+
     @app.get("/stats")
     def stats():
         user_id = ensure_user()
@@ -410,26 +486,30 @@ def create_app() -> Flask:
             ORDER BY id DESC
             LIMIT 20
             """,
-            (user_id,)
+            (user_id,),
         ).fetchall()
         con.close()
 
         events = [dict(e) for e in events]
-        events.reverse()  # oldest -> newest for graph left-to-right
+        events.reverse()
 
         return render_template("stats.html", state=st, events=events)
-    
 
-    @app.get("/avatar")
-    def avatar():
+    @app.get("/quiz/<story_id>")
+    def quiz_page(story_id: str):
         user_id = ensure_user()
         st = get_state(user_id)
-        st = apply_inactivity_health_decay(st)
-        st = save_state(user_id, st)
-
         stories = load_stories()
         unlocks = compute_unlocks(st, stories)
-        return render_template("avatar.html", state=st, unlocks=unlocks)
+
+        if story_id not in unlocks["unlocked_books"]:
+            return redirect(url_for("books"))
+
+        story = get_story(story_id)
+        if not story:
+            return redirect(url_for("books"))
+
+        return render_template("quiz.html", story_id=story_id, story_title=story["title"], state=st)
 
     # ----------------------------
     # APIs
@@ -443,17 +523,63 @@ def create_app() -> Flask:
 
         stories = load_stories()
         unlocks = compute_unlocks(st, stories)
-        return jsonify({"state": st, "unlocks": unlocks, "stories": stories})
+
+        con = db()
+        recent_events = con.execute(
+            """
+            SELECT score, label, ts
+            FROM engagement_events
+            WHERE user_id = ?
+            ORDER BY id DESC
+            LIMIT 20
+            """,
+            (user_id,),
+        ).fetchall()
+        con.close()
+
+        recent_events = [dict(r) for r in recent_events]
+        recent_events.reverse()
+
+        return jsonify({"state": st, "unlocks": unlocks, "stories": stories, "recent_events": recent_events})
 
     @app.get("/api/stories")
     def api_stories():
         return jsonify(load_stories())
 
+    @app.post("/api/start_reading")
+    def api_start_reading():
+        user_id = ensure_user()
+        data = request.get_json(force=True)
+        story_id = str(data.get("story_id", "")).strip()
+
+        story = get_story(story_id)
+        if not story:
+            return jsonify({"ok": False, "error": "Story not found"}), 404
+
+        con = db()
+        con.execute(
+            """
+            INSERT INTO reading_sessions (user_id, story_id, started_at)
+            VALUES (?, ?, ?)
+            """,
+            (user_id, story_id, now_utc_iso()),
+        )
+        con.commit()
+        con.close()
+
+        return jsonify({"ok": True})
+
     @app.post("/api/complete_book")
     def api_complete_book():
         user_id = ensure_user()
         payload = request.get_json(force=True)
+
         story_id = str(payload.get("story_id", "")).strip()
+        reading_time = float(payload.get("reading_time", 0))
+        scroll_depth = float(payload.get("scroll_depth", 0))
+        disengaged_windows = int(payload.get("disengaged_windows", 0))
+        focus_loss_ratio = float(payload.get("focus_loss_ratio", 0))
+        idle_ratio = float(payload.get("idle_ratio", 0))
 
         stories = load_stories()
         story_ids = [s["id"] for s in stories]
@@ -465,40 +591,151 @@ def create_app() -> Flask:
         if story_id not in unlocks["unlocked_books"]:
             return jsonify({"ok": False, "error": "Story is locked"}), 403
 
-        # Mark completed (idempotent)
-        if story_id not in st["completed_books"]:
-            st["completed_books"].append(story_id)
-            add_achievement(st, f"Finished {story_id.upper()}")
+        story = get_story(story_id)
+        word_count = len(story["text"].split()) if story else 0
 
-            # Completion: XP + reset health to 100
-            st = award_xp_and_reset_health(st, xp_gain=40)
+        # "too fast" rule
+        # approx: if book finished quicker than a generous minimum time and user reached most of the content
+        estimated_min_time = max(30, int(word_count / 4.0))
+        completed_too_fast = reading_time < estimated_min_time and scroll_depth >= 0.8
 
-        # Streak update
-        today = date.today()
-        last = st["last_active_date"]
-        if last is None:
-            st["streak"] = 1
-        else:
-            last_d = date.fromisoformat(last)
-            if last_d == today:
-                pass
-            else:
-                delta = (today - last_d).days
-                if delta == 1:
-                    st["streak"] += 1
-                else:
-                    st["streak"] = 1
+        suspicious_reasons = []
+        if completed_too_fast:
+            suspicious_reasons.append("Completed unusually fast")
+        if disengaged_windows >= 3:
+            suspicious_reasons.append("Several disengaged windows detected")
+        if focus_loss_ratio >= 0.35 and reading_time < estimated_min_time * 1.5:
+            suspicious_reasons.append("High focus loss during a short session")
+        if idle_ratio >= 0.7 and reading_time < estimated_min_time * 1.5:
+            suspicious_reasons.append("High idle time before completion")
 
-        st["last_active_date"] = today.isoformat()
+        suspicious = len(suspicious_reasons) > 0
 
-        if st["streak"] == 3:
-            add_achievement(st, "3-Day Streak 🔥")
-        if st["streak"] == 5:
-            add_achievement(st, "5-Day Streak 🔥🔥")
+        con = db()
+        latest = con.execute(
+            """
+            SELECT id
+            FROM reading_sessions
+            WHERE user_id = ? AND story_id = ?
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (user_id, story_id),
+        ).fetchone()
 
-        saved = save_state(user_id, st)
+        if latest:
+            con.execute(
+                """
+                UPDATE reading_sessions
+                SET completed_at = ?, reading_time_s = ?, scroll_depth = ?, suspicious = ?, suspicious_reason = ?
+                WHERE id = ?
+                """,
+                (
+                    now_utc_iso(),
+                    reading_time,
+                    scroll_depth,
+                    1 if suspicious else 0,
+                    "; ".join(suspicious_reasons),
+                    latest["id"],
+                ),
+            )
+            con.commit()
+        con.close()
+
+        if completed_too_fast:
+            st["last_engagement_label"] = "disengaged"
+            st["last_support_message"] = "That was very quick — let’s do a quick check first 📖"
+            save_state(user_id, st)
+
+        should_trigger_quiz = False
+        quiz_reason = ""
+
+        if suspicious:
+            should_trigger_quiz = True
+            quiz_reason = "suspicious"
+        elif random.random() < RANDOM_END_QUIZ_CHANCE:
+            should_trigger_quiz = True
+            quiz_reason = "random_end_check"
+
+        if should_trigger_quiz:
+            session["pending_completion"] = {
+                "story_id": story_id,
+                "reason": quiz_reason,
+            }
+            return jsonify(
+                {
+                    "ok": True,
+                    "needs_quiz": True,
+                    "quiz_url": url_for("quiz_page", story_id=story_id),
+                    "reason": quiz_reason,
+                    "suspicious_reasons": suspicious_reasons,
+                }
+            )
+
+        saved = mark_book_complete(user_id, story_id)
         new_unlocks = compute_unlocks(saved, stories)
-        return jsonify({"ok": True, "state": saved, "unlocks": new_unlocks})
+        return jsonify({"ok": True, "needs_quiz": False, "state": saved, "unlocks": new_unlocks})
+
+    @app.get("/api/quiz/<story_id>")
+    def api_quiz(story_id: str):
+        story = get_story(story_id)
+        if not story:
+            return jsonify({"ok": False, "error": "Story not found"}), 404
+
+        quiz = story.get("quiz", [])
+        return jsonify({"ok": True, "quiz": quiz, "title": story["title"]})
+
+    @app.post("/api/quiz/<story_id>")
+    def api_submit_quiz(story_id: str):
+        user_id = ensure_user()
+        data = request.get_json(force=True)
+        answers = data.get("answers", [])
+
+        story = get_story(story_id)
+        if not story:
+            return jsonify({"ok": False, "error": "Story not found"}), 404
+
+        quiz = story.get("quiz", [])
+        if not quiz:
+            return jsonify({"ok": False, "error": "No quiz for this story"}), 400
+
+        score = 0
+        for i, q in enumerate(quiz):
+            if i < len(answers) and answers[i] == q["answer"]:
+                score += 1
+
+        total = len(quiz)
+        passed = score >= max(1, total - 1)
+
+        con = db()
+        con.execute(
+            """
+            INSERT INTO quiz_results (user_id, story_id, score, total, passed, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (user_id, story_id, score, total, 1 if passed else 0, now_utc_iso()),
+        )
+        con.commit()
+        con.close()
+
+        pending = session.get("pending_completion")
+        completion_applied = False
+
+        if pending and pending.get("story_id") == story_id:
+            if passed:
+                mark_book_complete(user_id, story_id)
+                completion_applied = True
+            session.pop("pending_completion", None)
+
+        return jsonify(
+            {
+                "ok": True,
+                "score": score,
+                "total": total,
+                "passed": passed,
+                "completion_applied": completion_applied,
+            }
+        )
 
     @app.post("/api/select_avatar")
     def api_select_avatar():
@@ -536,11 +773,6 @@ def create_app() -> Flask:
 
     @app.post("/api/engagement")
     def api_engagement():
-        """
-        Receives tracker.js feature window:
-          idle_ratio, scroll_speed_px_s, scroll_depth_ratio, focus_loss_ratio,
-          nav_rate_per_min, interaction_rate_per_min, story_id
-        """
         user_id = ensure_user()
         data = request.get_json(force=True)
 
@@ -562,7 +794,6 @@ def create_app() -> Flask:
             interaction_rate_per_min=interaction_rate_per_min,
         )
 
-        # supportive message (still fair: doesn’t change XP rules)
         if label == "disengaged":
             msg = "Tiny goal: read one more paragraph 💛"
         elif label == "neutral":
@@ -572,9 +803,7 @@ def create_app() -> Flask:
 
         st = get_state(user_id)
 
-        # ----------------------------
-        # Engaged bonus: +1 every 30 seconds engaged
-        # ----------------------------
+        # engaged +1 every 30 seconds
         if label == "engaged":
             st["engaged_streak_windows"] = int(st.get("engaged_streak_windows", 0)) + 1
             if st["engaged_streak_windows"] >= ENGAGED_WINDOWS_FOR_PLUS1:
@@ -583,9 +812,7 @@ def create_app() -> Flask:
         else:
             st["engaged_streak_windows"] = 0
 
-        # ----------------------------
-        # Disengaged penalty (Option 2): -2 after 30s disengaged
-        # ----------------------------
+        # disengaged penalty after 30 seconds
         if label == "disengaged":
             st["disengaged_streak_windows"] = int(st.get("disengaged_streak_windows", 0)) + 1
             if st["disengaged_streak_windows"] >= DISENGAGED_WINDOWS_TRIGGER:
@@ -594,9 +821,7 @@ def create_app() -> Flask:
         else:
             st["disengaged_streak_windows"] = 0
 
-        # ----------------------------
-        # Idle cap: if very idle for ~30s, apply -2 ONCE then latch
-        # ----------------------------
+        # idle cap
         st["idle_streak_windows"] = int(st.get("idle_streak_windows", 0))
         st["idle_penalty_latched"] = int(st.get("idle_penalty_latched", 0))
 
@@ -607,9 +832,8 @@ def create_app() -> Flask:
 
         if st["idle_penalty_latched"] == 0 and st["idle_streak_windows"] >= IDLE_WINDOWS_TRIGGER:
             st["health"] = clamp(int(st["health"]) - IDLE_PENALTY, HEALTH_MIN, HEALTH_MAX)
-            st["idle_penalty_latched"] = 1  # cap on further idle loss
+            st["idle_penalty_latched"] = 1
 
-        # unlatch when user becomes active again
         if idle_ratio < IDLE_RECOVER:
             st["idle_penalty_latched"] = 0
             st["idle_streak_windows"] = 0
@@ -620,7 +844,6 @@ def create_app() -> Flask:
 
         save_state(user_id, st)
 
-        # log event (optional but useful for FYP evidence)
         con = db()
         con.execute(
             """
