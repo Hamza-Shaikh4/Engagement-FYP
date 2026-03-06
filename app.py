@@ -393,6 +393,32 @@ def create_app() -> Flask:
         stories = load_stories()
         unlocks = compute_unlocks(st, stories)
         return render_template("results.html", state=st, stories=stories, unlocks=unlocks)
+    
+    @app.get("/stats")
+    def stats():
+        user_id = ensure_user()
+        st = get_state(user_id)
+        st = apply_inactivity_health_decay(st)
+        st = save_state(user_id, st)
+
+        con = db()
+        events = con.execute(
+            """
+            SELECT score, label, ts
+            FROM engagement_events
+            WHERE user_id = ?
+            ORDER BY id DESC
+            LIMIT 20
+            """,
+            (user_id,)
+        ).fetchall()
+        con.close()
+
+        events = [dict(e) for e in events]
+        events.reverse()  # oldest -> newest for graph left-to-right
+
+        return render_template("stats.html", state=st, events=events)
+    
 
     @app.get("/avatar")
     def avatar():

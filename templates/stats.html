@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stats</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-bg="{{ state['selected_bg'] }}">
+
+<main class="app">
+  <div class="page">
+
+    <header class="topbar">
+      <a class="iconbtn" href="/">🏠</a>
+      <div class="title">Behaviour Stats</div>
+      <span style="width:38px;"></span>
+    </header>
+
+    <section class="section stack">
+
+      <div class="toast">📊 Your Stats</div>
+
+      <div class="stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div class="section" style="padding:12px;">
+          <div style="color:var(--muted);font-weight:900;">Level</div>
+          <div style="font-size:22px;font-weight:900;">{{ state["level"] }}</div>
+        </div>
+
+        <div class="section" style="padding:12px;">
+          <div style="color:var(--muted);font-weight:900;">XP</div>
+          <div style="font-size:22px;font-weight:900;">{{ state["xp"] }}</div>
+        </div>
+
+        <div class="section" style="padding:12px;">
+          <div style="color:var(--muted);font-weight:900;">Streak</div>
+          <div style="font-size:22px;font-weight:900;">{{ state["streak"] }} 🔥</div>
+        </div>
+
+        <div class="section" style="padding:12px;">
+          <div style="color:var(--muted);font-weight:900;">Health</div>
+          <div style="font-size:22px;font-weight:900;">{{ state["health"] }}%</div>
+        </div>
+
+        <div class="section" style="padding:12px;">
+          <div style="color:var(--muted);font-weight:900;">Books Completed</div>
+          <div style="font-size:22px;font-weight:900;">{{ state["completed_books"]|length }}</div>
+        </div>
+
+        <div class="section" style="padding:12px;">
+          <div style="color:var(--muted);font-weight:900;">Last Engagement</div>
+          <div style="font-size:22px;font-weight:900;">{{ state["last_engagement_label"] }}</div>
+        </div>
+      </div>
+
+      <div class="section" style="padding:12px;">
+        <div style="font-weight:900;">Engagement Trend</div>
+        <div style="margin-top:6px;color:var(--muted);font-weight:800;">
+          Last 20 engagement windows
+        </div>
+        <div style="margin-top:12px;">
+          <canvas id="engagementChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section" style="padding:12px;">
+        <div style="font-weight:900;">Recent Engagement Windows</div>
+        {% if events|length == 0 %}
+          <div style="margin-top:8px;color:var(--muted);font-weight:800;">
+            No engagement data yet — open a reading page and read for a bit.
+          </div>
+        {% else %}
+          <div style="display:grid;gap:8px;margin-top:10px;">
+            {% for e in events %}
+              <div class="chip">
+                {{ e.label }} ({{ '%.2f'|format(e.score) }})
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="navrow">
+        <a class="smallbtn" href="/results">Back to Progress 🏆</a>
+        <a class="smallbtn" href="/books">Library 📚</a>
+      </div>
+
+    </section>
+
+  </div>
+</main>
+
+<script id="events-data" type="application/json">
+  {{ events|tojson }}
+</script>
+
+<script>
+  const rawEvents = document.getElementById("events-data").textContent;
+  const chartEvents = JSON.parse(rawEvents);
+
+  const engagementLabels = chartEvents.map((_, i) => `W${i + 1}`);
+  const engagementScores = chartEvents.map(e => Number(e.score));
+
+  const ctx = document.getElementById("engagementChart");
+
+  if (ctx && engagementScores.length > 0) {
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: engagementLabels,
+        datasets: [{
+          label: "Engagement Score",
+          data: engagementScores,
+          tension: 0.3,
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            min: 0,
+            max: 1,
+            ticks: {
+              stepSize: 0.2
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+
+<script src="/static/app_state.js"></script>
+</body>
+</html>

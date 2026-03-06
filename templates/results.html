@@ -1,116 +1,58 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Results</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <meta charset="utf-8">
+  <title>Progress</title>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
-
 <body data-bg="{{ state['selected_bg'] }}">
-  <main class="app">
-    <div class="page">
 
-      <header class="topbar">
-        <a class="iconbtn" href="/" title="Home" aria-label="Home">🏠</a>
-        <div class="title">My Results</div>
-        <span style="width:38px;"></span>
-      </header>
+<main class="app">
+<div class="page">
 
-      <section class="section stack">
-        <div class="stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-          <div class="section" style="padding:12px;">
-            <div style="color:var(--muted);font-weight:900;">Books Completed</div>
-            <div id="booksCompleted" style="font-size:22px;font-weight:900;">
-              {{ state['completed_books']|length }}
-            </div>
-          </div>
+<header class="topbar">
+  <a class="iconbtn" href="/">🏠</a>
+  <div class="title">Your Progress</div>
+  <span style="width:38px;"></span>
+</header>
 
-          <div class="section" style="padding:12px;">
-            <div style="color:var(--muted);font-weight:900;">Streak</div>
-            <div id="streak" style="font-size:22px;font-weight:900;">
-              {{ state['streak'] }} 🔥
-            </div>
-          </div>
+<section class="section stack">
 
-          <div class="section" style="padding:12px;">
-            <div style="color:var(--muted);font-weight:900;">Level</div>
-            <div id="level" style="font-size:22px;font-weight:900;">
-              {{ state['level'] }}
-            </div>
-          </div>
+  <div class="toast">🎯 Objectives</div>
 
-          <div class="section" style="padding:12px;">
-            <div style="color:var(--muted);font-weight:900;">Active Avatar</div>
-            <div id="activeAvatar" style="font-size:22px;font-weight:900;">
-              {{ state['selected_avatar'] }}
-            </div>
-          </div>
-        </div>
+  <div class="section" style="padding:12px;">
+    <ul style="margin:0;padding-left:18px;font-weight:800;">
+      <li>Finish Book 1 {% if "book1" in state["completed_books"] %}✅{% endif %}</li>
+      <li>Finish Book 2 {% if "book2" in state["completed_books"] %}✅{% endif %}</li>
+      <li>Finish Book 3 {% if "book3" in state["completed_books"] %}✅{% endif %}</li>
+      <li>Reach Streak 5 {% if state["streak"] >= 5 %}✅{% endif %}</li>
+    </ul>
+  </div>
 
-        <!-- XP Progress -->
-        <div class="section" style="padding:12px;">
-          <div class="row" style="display:flex;justify-content:space-between;color:var(--muted);font-weight:900;">
-            <span>XP</span>
-            <span id="xpText">{{ state['xp'] }}</span>
-          </div>
+  <div class="toast">🏅 Achievements</div>
 
-          <div style="margin-top:8px;height:16px;border-radius:999px;background:rgba(0,0,0,0.06);overflow:hidden;">
-            {% set xp_mod = (state['xp'] % 100) %}
-            <div id="xpBar" style="height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#34d399,#fbbf24);"></div>
-          </div>
+  <div class="section" style="padding:12px;">
+    {% if state["achievements"]|length == 0 %}
+      <div class="muted" style="font-weight:900;">
+        No achievements yet — finish a book to earn one!
+      </div>
+    {% else %}
+      {% for a in state["achievements"] %}
+        <div class="chip" style="margin-bottom:6px;">🏅 {{ a }}</div>
+      {% endfor %}
+    {% endif %}
+  </div>
 
-          <div style="margin-top:8px;color:var(--muted);font-weight:900;font-size:12px;">
-            Next level every 100 XP (prototype rule)
-          </div>
-        </div>
 
-        <div class="toast">Objectives</div>
+  <div class="navrow">
+    <a class="smallbtn" href="/books">Go to Library 📚</a>
+    <a class="smallbtn" href="/stats">View Stats 📊</a>
+  </div>
 
-        <div class="section stack" style="padding:12px;">
-          <div style="font-weight:900;">🎯 Objectives (fair rules)</div>
-          <ul id="objectivesList" style="margin:0;padding-left:18px;font-weight:800;color:rgba(17,24,39,0.85);">
-            <li>Finish Book 1 (unlocks 🧑‍🚀)</li>
-            <li>Finish Book 2 (unlocks Space background 🚀)</li>
-            <li>Finish Book 3 (unlocks Forest background 🌲)</li>
-            <li>Reach streak 5 (unlocks 🤖)</li>
-          </ul>
-        </div>
+</section>
 
-        <div class="toast">Achievements</div>
+</div>
+</main>
 
-        <div class="section" style="padding:12px;">
-          <div id="achievementsList" style="display:grid;gap:8px;">
-            {% if state['achievements']|length == 0 %}
-              <div class="muted" style="font-weight:900;">
-                No achievements yet — finish a book to earn your first ⭐
-              </div>
-            {% else %}
-              {% for a in state['achievements'] %}
-                <div class="chip" style="display:inline-flex;align-items:center;gap:8px;">
-                  🏅 {{ a }}
-                </div>
-              {% endfor %}
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="section" style="padding:12px;">
-          <div style="font-weight:900;">🧠 Engagement (last detected)</div>
-          <div id="engagementLine" style="margin-top:6px;color:var(--muted);font-weight:900;">
-            {{ state['last_engagement_label'] }} ({{ '%.2f'|format(state['last_engagement_score']) }})
-          </div>
-          <div id="supportLine" style="margin-top:6px;font-weight:900;">
-            {{ state['last_support_message'] }}
-          </div>
-        </div>
-
-      </section>
-
-    </div>
-  </main>
-
-  <script src="/static/app_state.js"></script>
-  <script src="/static/results.js"></script>
 </body>
 </html>
