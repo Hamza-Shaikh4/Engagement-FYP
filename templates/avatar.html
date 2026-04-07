@@ -18,30 +18,55 @@
       </header>
 
       <section class="section stack">
+
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <div>
             <div style="font-weight:800;">Selected</div>
             <div style="color:var(--muted);font-size:13px;">Tap an unlocked avatar</div>
           </div>
-          <div class="avatarBig" id="selectedAvatar" style="font-size:42px;">{{ state.selected_avatar }}</div>
+
+          <div class="avatarBig">
+            <img
+              id="selectedAvatar"
+              data-current-avatar="{{ state.selected_avatar }}"
+              src="{% if state.selected_avatar == 'blueTrainer' %}/static/avatars/steven-gen6.png{% elif state.selected_avatar == 'blondeTrainer' %}/static/avatars/cynthia-gen4.png{% else %}/static/avatars/default.png{% endif %}"
+              alt="Selected avatar"
+              style="width:72px;height:72px;image-rendering:pixelated;"
+            />
+          </div>
         </div>
 
-        <div class="toast" id="avatarToast">Unlock more avatars by finishing books and building streaks ✨</div>
+        <div class="toast" id="avatarToast">
+          Unlock more avatars by finishing books and building streaks ✨
+        </div>
 
         <div class="grid" id="avatarGrid">
-          {% set all_avatars = ["🙂","🧑‍🚀","🧙","🦸","🤖"] %}
-          {% for a in all_avatars %}
-            {% set unlocked = (a in unlocks.unlocked_avatars) %}
+          {% set all_avatars = [
+            {"id":"blueTrainer","label":"Blue Trainer","img":"/static/avatars/steven-gen6.png"},
+            {"id":"blondeTrainer","label":"Blonde Trainer","img":"/static/avatars/cynthia-gen4.png"}
+          ] %}
+
+          {% for avatar in all_avatars %}
+            {% set unlocked = (avatar.id in unlocks.unlocked_avatars) %}
+
             {% if unlocked %}
-              <button class="card" data-avatar="{{ a }}" type="button">
-                <div style="font-size:34px;">{{ a }}</div>
-                <div class="label">Unlocked</div>
+              <button class="card" data-avatar="{{ avatar.id }}" type="button">
+                <img
+                  src="{{ avatar.img }}"
+                  alt="{{ avatar.label }}"
+                  style="width:64px;height:64px;image-rendering:pixelated;"
+                />
+                <div class="label">{{ avatar.label }}</div>
               </button>
             {% else %}
               <div class="card locked" aria-disabled="true">
                 <div class="lock">🔒</div>
-                <div style="font-size:34px;">{{ a }}</div>
-                <div class="label">Locked</div>
+                <img
+                  src="/static/avatars/default.png"
+                  alt="Locked avatar"
+                  style="width:64px;height:64px;image-rendering:pixelated;opacity:0.8;"
+                />
+                <div class="label">{{ avatar.label }}</div>
               </div>
             {% endif %}
           {% endfor %}
@@ -55,8 +80,10 @@
             {"id":"bg-space","label":"Space 🚀"},
             {"id":"bg-forest","label":"Forest 🌲"}
           ] %}
+
           {% for bg in all_bgs %}
             {% set unlocked = (bg.id in unlocks.unlocked_bgs) %}
+
             {% if unlocked %}
               <button class="card" data-bg="{{ bg.id }}" type="button">
                 <div style="font-size:34px;">🖼️</div>

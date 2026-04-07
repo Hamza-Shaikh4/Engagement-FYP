@@ -89,8 +89,35 @@ def stats():
     ).fetchall()
     connection.close()
 
-    events = [dict(event) for event in events]
+    from datetime import datetime
+
+    events = [dict(e) for e in events]
     events.reverse()
+
+    from datetime import datetime, timezone, timedelta
+
+    now = datetime.now(timezone.utc).astimezone()
+
+    for event in events:
+        dt = datetime.fromisoformat(event["ts"])
+
+        # Make sure timestamp is timezone-aware
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+
+        dt = dt.astimezone()
+
+        if dt.date() == now.date():
+            # Same day
+            event["display_time"] = dt.strftime("%H:%M:%S")
+
+        elif dt.date() == (now.date() - timedelta(days=1)):
+            # Yesterday
+            event["display_time"] = f"Yesterday {dt.strftime('%H:%M')}"
+
+        else:
+            # Older date
+            event["display_time"] = dt.strftime("%d %b %H:%M")
 
     return render_template("stats.html", state=state, events=events)
 

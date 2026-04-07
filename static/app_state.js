@@ -29,6 +29,44 @@
   }
 })();
 
+function updateAvatarUI(state) {
+  const avatarBox = document.getElementById("hudAvatar");
+  if (!avatarBox) return;
+
+  const avatarName = state.selected_avatar || "defaultAvatar";
+  const mood = state.last_engagement_label || "engaged";
+
+  const avatarSprites = {
+    defaultAvatar: {
+      engaged: "/static/avatars/default.png",
+      neutral: "/static/avatars/default.png",
+      disengaged: "/static/avatars/default.png"
+    },
+    blueTrainer: {
+      engaged: "/static/avatars/steven-gen6.png",
+      neutral: "/static/avatars/steven-gen6.png",
+      disengaged: "/static/avatars/steven.png"
+    },
+    blondeTrainer: {
+      engaged: "/static/avatars/cynthia-gen4.png",
+      neutral: "/static/avatars/cynthia-gen4.png",
+      disengaged: "/static/avatars/cynthia.png"
+    }
+  };
+
+  const avatar = avatarSprites[avatarName] || avatarSprites.defaultAvatar;
+  const imagePath = avatar[mood] || avatar.engaged;
+
+  avatarBox.innerHTML = `
+    <img
+      src="${imagePath}"
+      alt="${avatarName}"
+      style="width:72px;height:72px;image-rendering:pixelated;"
+    >
+  `;
+}
+
+
 
 // ---------------------------------------
 // UI HELPERS
@@ -95,6 +133,7 @@ async function loadAppState() {
 
     window.APP_STATE = data;
 
+    updateAvatarUI(state);
     updateHealthUI(state);
     updateReadButton(state, stories);
 

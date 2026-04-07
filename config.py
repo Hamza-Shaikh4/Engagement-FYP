@@ -36,4 +36,4 @@ HIGH_FOCUS_LOSS_THRESHOLD = 0.35
 HIGH_IDLE_THRESHOLD = 0.7
 
 # Model selection
-ENGAGEMENT_MODEL_NAME = "fuzzy"   # later you can change this to "hmm"
+ENGAGEMENT_MODEL_NAME = "hmm"   # later you can change this to "hmm"

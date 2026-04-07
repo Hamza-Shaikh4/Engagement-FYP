@@ -390,6 +390,15 @@ body{
   background: linear-gradient(90deg, var(--green), var(--yellow));
 }
 
+.petAvatar {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 /* ---- Tiny helpers ---- */
 .center{ text-align: center; }
 .muted{ color: var(--muted); }

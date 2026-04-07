@@ -24,6 +24,9 @@ def compute_unlocks(state: dict, stories: list[dict]) -> dict:
     completed_books = set(state["completed_books"])
     story_ids = [story["id"] for story in stories]
 
+    # -----------------------------
+    # Book unlocks
+    # -----------------------------
     unlocked_books = []
     for index, story_id in enumerate(story_ids):
         if index == 0:
@@ -33,19 +36,24 @@ def compute_unlocks(state: dict, stories: list[dict]) -> dict:
             if previous_story_id in completed_books:
                 unlocked_books.append(story_id)
 
-    unlocked_avatars = ["🙂"]
-    if "book1" in completed_books:
-        unlocked_avatars.append("🧑‍🚀")
-    if "book2" in completed_books:
-        unlocked_avatars.append("🧙")
-    if "book3" in completed_books:
-        unlocked_avatars.append("🦸")
-    if state["streak"] >= 5:
-        unlocked_avatars.append("🤖")
+    # -----------------------------
+    # Avatar unlocks
+    # Default avatar is separate and always shown as fallback.
+    # Trainer avatars both unlock after Book 1.
+    # -----------------------------
+    unlocked_avatars = []
 
+    if "book1" in completed_books:
+        unlocked_avatars.extend(["blueTrainer", "blondeTrainer"])
+
+    # -----------------------------
+    # Background unlocks
+    # -----------------------------
     unlocked_backgrounds = ["bg-default"]
+
     if "book2" in completed_books:
         unlocked_backgrounds.append("bg-space")
+
     if "book3" in completed_books:
         unlocked_backgrounds.append("bg-forest")
 
