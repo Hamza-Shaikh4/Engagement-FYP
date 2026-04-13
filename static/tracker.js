@@ -1,5 +1,6 @@
 const WINDOW_SECONDS = 10;
 const IDLE_THRESHOLD_MS = 12000;
+const FAST_SCROLL_BURST_THRESHOLD = 650;
 
 const storyId = String(window.STORY_ID || "").trim() || "unknown";
 
@@ -25,6 +26,10 @@ let hiddenMsThisWindow = 0;
 let disengagedWindowsCount = 0;
 let latestFocusLossRatio = 0;
 let latestIdleRatio = 0;
+
+let fastScrollBursts = 0;
+let maxScrollSpeedPxS = 0;
+let lastScrollEventMs = Date.now();
 
 function createPanel() {
   let panel = document.getElementById("trackerPanel");
@@ -71,21 +76,40 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
+function handleScroll(current) {
+  const now = Date.now();
+  const deltaPx = Math.abs(current - lastScrollPos);
+  const elapsedSeconds = Math.max(0.001, (now - lastScrollEventMs) / 1000);
+
+  totalScrollPx += deltaPx;
+
+  const instantSpeed = deltaPx / elapsedSeconds;
+
+  if (instantSpeed > maxScrollSpeedPxS) {
+    maxScrollSpeedPxS = instantSpeed;
+  }
+
+  if (instantSpeed >= FAST_SCROLL_BURST_THRESHOLD) {
+    fastScrollBursts += 1;
+  }
+
+  lastScrollPos = current;
+  lastScrollEventMs = now;
+
+  if (current > maxScrollPosThisWindow) {
+    maxScrollPosThisWindow = current;
+  }
+
+  markActivity();
+}
+
 if (hasReader) {
   reader.addEventListener("scroll", () => {
-    const current = reader.scrollTop;
-    totalScrollPx += Math.abs(current - lastScrollPos);
-    lastScrollPos = current;
-    if (current > maxScrollPosThisWindow) maxScrollPosThisWindow = current;
-    markActivity();
+    handleScroll(reader.scrollTop);
   }, { passive: true });
 } else {
   window.addEventListener("scroll", () => {
-    const current = window.scrollY;
-    totalScrollPx += Math.abs(current - lastScrollPos);
-    lastScrollPos = current;
-    if (current > maxScrollPosThisWindow) maxScrollPosThisWindow = current;
-    markActivity();
+    handleScroll(window.scrollY);
   }, { passive: true });
 }
 
@@ -105,7 +129,9 @@ window.addEventListener("mousemove", markActivity);
 
 setInterval(() => {
   totalSamples++;
-  if ((Date.now() - lastActivityMs) >= IDLE_THRESHOLD_MS) idleSamples++;
+  if ((Date.now() - lastActivityMs) >= IDLE_THRESHOLD_MS) {
+    idleSamples++;
+  }
 }, 250);
 
 function resetWindow() {
@@ -117,6 +143,10 @@ function resetWindow() {
   totalSamples = 0;
   maxScrollPosThisWindow = hasReader ? reader.scrollTop : window.scrollY;
   hiddenMsThisWindow = 0;
+
+  fastScrollBursts = 0;
+  maxScrollSpeedPxS = 0;
+  lastScrollEventMs = Date.now();
 }
 
 function calculateFeatures() {
@@ -125,7 +155,9 @@ function calculateFeatures() {
   const safeSeconds = Math.max(1, elapsedSeconds);
 
   let hiddenMsTotal = hiddenMsThisWindow;
-  if (document.hidden && hiddenStartMs !== null) hiddenMsTotal += (now - hiddenStartMs);
+  if (document.hidden && hiddenStartMs !== null) {
+    hiddenMsTotal += (now - hiddenStartMs);
+  }
 
   const idle_ratio = totalSamples === 0 ? 0 : idleSamples / totalSamples;
   const scroll_speed_px_s = totalScrollPx / safeSeconds;
@@ -142,6 +174,7 @@ function calculateFeatures() {
   }
 
   const focus_loss_ratio = Math.min(1, hiddenMsTotal / (safeSeconds * 1000));
+  const active_reading_ratio = Math.max(0, 1 - Math.max(idle_ratio, focus_loss_ratio));
 
   return {
     story_id: storyId,
@@ -150,7 +183,10 @@ function calculateFeatures() {
     scroll_depth_ratio,
     focus_loss_ratio,
     nav_rate_per_min,
-    interaction_rate_per_min
+    interaction_rate_per_min,
+    fast_scroll_bursts: fastScrollBursts,
+    active_reading_ratio,
+    max_scroll_speed_px_s: maxScrollSpeedPxS
   };
 }
 
@@ -182,14 +218,21 @@ setInterval(async () => {
       });
     }
 
+    if (typeof window.onEngagementFeedback === "function") {
+      window.onEngagementFeedback(result, features);
+    }
+
     updatePanel(
       `Engagement: ${result.label}\n` +
       `Score: ${Number(result.score).toFixed(2)}\n\n` +
       `Support: ${result.support_message}\n\n` +
       `idle: ${features.idle_ratio.toFixed(2)}\n` +
       `speed: ${features.scroll_speed_px_s.toFixed(1)} px/s\n` +
+      `maxSpeed: ${features.max_scroll_speed_px_s.toFixed(1)} px/s\n` +
       `depth: ${features.scroll_depth_ratio.toFixed(2)}\n` +
-      `focusLoss: ${features.focus_loss_ratio.toFixed(2)}\n`
+      `focusLoss: ${features.focus_loss_ratio.toFixed(2)}\n` +
+      `bursts: ${features.fast_scroll_bursts}\n` +
+      `activeRead: ${features.active_reading_ratio.toFixed(2)}\n`
     );
   } catch (err) {
     updatePanel("ERROR calling /api/engagement\n\n" + String(err));

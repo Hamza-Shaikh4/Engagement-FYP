@@ -3,52 +3,205 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Books</title>
+  <title>Adventure Path</title>
   <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/books_path.css" />
 </head>
 
 <body data-bg="{{ state.selected_bg }}">
+  {% set buddy_img = 'default.png' %}
+  {% if state.selected_avatar == 'blueTrainer' %}
+    {% if state.last_engagement_label == 'disengaged' %}
+      {% set buddy_img = 'steven.png' %}
+    {% else %}
+      {% set buddy_img = 'steven-gen6.png' %}
+    {% endif %}
+  {% elif state.selected_avatar == 'blondeTrainer' %}
+    {% if state.last_engagement_label == 'disengaged' %}
+      {% set buddy_img = 'cynthia.png' %}
+    {% else %}
+      {% set buddy_img = 'cynthia-gen4.png' %}
+    {% endif %}
+  {% endif %}
+
   <main class="app">
-    <div class="page">
+    <div class="page books-page">
 
       <header class="topbar">
         <a class="iconbtn" href="/" title="Home" aria-label="Home">🏠</a>
-        <div class="title">My Books</div>
+        <div class="title">Adventure Path</div>
         <span style="width:38px;"></span>
       </header>
 
-      <section class="section">
-        <div class="grid">
-          {% for story in stories %}
-            {% set unlocked = (story.id in unlocks.unlocked_books) %}
-            {% set done = (story.id in state.completed_books) %}
+      <section class="books-hud cardish">
+        <div class="books-hud-row">
+          <div class="books-hud-item">
+            <div class="books-hud-label">Engagement</div>
+            <div class="books-hud-value">{{ state.last_engagement_label|capitalize }}</div>
+          </div>
 
-            {% if unlocked %}
-              <a class="card" href="/reading/{{ story.id }}">
-                <div style="font-size:34px;">📖</div>
-                <div class="label">{{ story.title }}</div>
-                <div class="muted" style="font-size:12px;font-weight:800;">
-                  {% if done %}✅ Completed{% else %}Unlocked{% endif %}
-                </div>
-              </a>
-            {% else %}
-              <div class="card locked" aria-disabled="true" data-locked="true">
-                <div class="lock">🔒</div>
-                <div style="font-size:34px;">📖</div>
-                <div class="label">{{ story.title }}</div>
-                <div class="muted" style="font-size:12px;font-weight:800;">Finish previous book</div>
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-
-        <div class="toast" id="lockedToast" style="display:none;">
-          This book is locked — finish the previous one first ✨
+          <div class="books-hud-item books-hud-health">
+            <div class="books-hud-label">Buddy Health</div>
+            <div class="books-healthbar">
+              <div class="books-healthfill" data-health="{{ state['health'] }}"></div>
+            </div>
+            <div class="books-hud-health-text">{{ state.health }}%</div>
+          </div>
         </div>
       </section>
 
+      <section class="path-shell">
+        <div class="path-line"></div>
+
+        {% for stage in stage_cards %}
+          {% set is_left = loop.index0 % 2 == 0 %}
+
+          <div class="path-row {{ 'left' if is_left else 'right' }}">
+            <div class="stage-card stage-{{ stage.status }}" data-status="{{ stage.status }}">
+              <div class="stage-node">
+                <div class="stage-icon">{{ stage.icon }}</div>
+              </div>
+
+              <div class="stage-panel">
+                <div class="stage-top">
+                  <span class="stage-number">Stage {{ stage.stage_number }}</span>
+
+                  {% if stage.status == "completed" %}
+                    <span class="stage-badge complete">✅ Complete</span>
+                  {% elif stage.status == "current" %}
+                    <span class="stage-badge current">✨ Current</span>
+                  {% else %}
+                    <span class="stage-badge locked">🔒 Locked</span>
+                  {% endif %}
+                </div>
+
+                <h3>{{ stage.stage_name }}</h3>
+                <div class="stage-title">{{ stage.difficulty }}</div>
+                <div class="stage-reward">
+                  Progress: {{ stage.completed_in_stage }}/{{ stage.total_in_stage }} books
+                </div>
+
+                <div class="books-stage-list">
+                  {% for book in stage.books %}
+                    <div class="chip books-book-chip">
+                      <div>
+                        <div>
+                          {% if book.completed %}
+                            ✅
+                          {% elif book.unlocked %}
+                            📖
+                          {% else %}
+                            🔒
+                          {% endif %}
+                          {{ book.title }}
+                        </div>
+
+                        {% if book.summary %}
+                          <div class="book-summary">{{ book.summary }}</div>
+                        {% endif %}
+                      </div>
+
+                      {% if book.href %}
+                        <a class="smallbtn" href="{{ book.href }}">
+                          {% if book.completed %}Read Again{% else %}Read{% endif %}
+                        </a>
+                      {% else %}
+                        <span class="smallbtn" style="opacity:.55;pointer-events:none;">Locked</span>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </section>
+
+      <div id="booksDialogueOverlay" class="books-dialogue-overlay {% if dialogue_lines %}show{% endif %}">
+        <div class="books-dialogue-panel">
+          <img
+            class="books-dialogue-avatar"
+            src="{{ url_for('static', filename='avatars/' ~ buddy_img) }}"
+            alt="Buddy character"
+            onerror="this.onerror=null;this.src='/static/avatars/default.png';"
+          />
+
+          <div class="books-dialogue-content">
+            <div class="books-dialogue-name">Buddy</div>
+            <div id="booksDialogueText" class="books-dialogue-text">
+              {{ dialogue_lines[0] if dialogue_lines else '' }}
+            </div>
+
+            <div class="books-dialogue-actions">
+              <button id="booksDialogueNext" class="smallbtn" type="button">
+                {% if dialogue_lines|length > 1 %}Next{% else %}Close{% endif %}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
+
+  <script id="books-dialogue-data" type="application/json">
+    {{ dialogue_lines|tojson }}
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = document.getElementById("booksDialogueOverlay");
+      const textEl = document.getElementById("booksDialogueText");
+      const nextBtn = document.getElementById("booksDialogueNext");
+      const raw = document.getElementById("books-dialogue-data");
+
+      let lines = [];
+      try {
+        lines = JSON.parse(raw.textContent || "[]");
+      } catch (err) {
+        lines = [];
+      }
+
+      let index = 0;
+
+      function closeDialogue() {
+        if (!overlay) return;
+        overlay.classList.remove("show");
+      }
+
+      function updateDialogue() {
+        if (!textEl || !nextBtn) return;
+
+        if (!lines.length) {
+          closeDialogue();
+          return;
+        }
+
+        textEl.textContent = lines[index];
+        textEl.classList.remove("books-dialogue-in");
+        void textEl.offsetWidth;
+        textEl.classList.add("books-dialogue-in");
+
+        nextBtn.textContent = index >= lines.length - 1 ? "Close" : "Next";
+      }
+
+      if (overlay && nextBtn && lines.length) {
+        updateDialogue();
+
+        nextBtn.addEventListener("click", () => {
+          if (index >= lines.length - 1) {
+            closeDialogue();
+            return;
+          }
+
+          index += 1;
+          updateDialogue();
+        });
+      } else {
+        closeDialogue();
+      }
+    });
+  </script>
 
   <script src="/static/books.js"></script>
   <script src="/static/app_state.js"></script>

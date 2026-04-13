@@ -74,6 +74,8 @@ def api_start_reading():
     if story is None:
         return jsonify({"ok": False, "error": "Story not found"}), 404
 
+    session.pop("hmm_state_probabilities", None)
+
     start_reading_session(user_id, story_id)
     return jsonify({"ok": True})
 
@@ -85,9 +87,18 @@ def api_engagement():
 
     story_id = str(features.get("story_id", "")).strip() or "unknown"
 
-    result = predict_engagement(features)
+    features.setdefault("fast_scroll_bursts", 0)
+    features.setdefault("active_reading_ratio", 0.5)
+    features.setdefault("max_scroll_speed_px_s", 0.0)
+
+    previous_state_data = session.get("hmm_state_probabilities")
+
+    result = predict_engagement(features, previous_state_data=previous_state_data)
     score = float(result["score"])
     label = result["label"]
+
+    if "state_probabilities" in result:
+        session["hmm_state_probabilities"] = result["state_probabilities"]
 
     state = get_state(user_id)
     state = process_engagement_result(state, score, label, features["idle_ratio"])
@@ -149,9 +160,7 @@ def api_complete_book():
         suspicious_reasons=suspicious_reasons,
     )
 
-    # If finished too fast, update the last message so the user understands why a quiz appears
     if "Completed unusually fast" in suspicious_reasons:
-        state["last_engagement_label"] = "disengaged"
         state["last_support_message"] = "That was very quick — let’s do a quick check first 📖"
         save_state(user_id, state)
 
@@ -179,7 +188,11 @@ def api_complete_book():
         })
 
     state = mark_book_complete(state, story_id)
+    state["last_support_message"] = "Book completed! Great job 📚"
     state = save_state(user_id, state)
+
+    session.pop("hmm_state_probabilities", None)
+
     unlocks = compute_unlocks(state, stories)
 
     return jsonify({
@@ -233,13 +246,21 @@ def api_submit_quiz(story_id: str):
     completion_applied = False
 
     if pending_completion and pending_completion.get("story_id") == story_id:
+        state = get_state(user_id)
+
         if passed:
-            state = get_state(user_id)
             state = mark_book_complete(state, story_id)
-            save_state(user_id, state)
+            state["last_support_message"] = "Nice work — quiz passed! ✅"
+            state = save_state(user_id, state)
             completion_applied = True
+        else:
+            state["last_engagement_label"] = "disengaged"
+            state["last_support_message"] = "Quiz not passed — try reading more carefully and have another go 📖"
+            state = save_state(user_id, state)
 
         session.pop("pending_completion", None)
+
+    session.pop("hmm_state_probabilities", None)
 
     return jsonify({
         "ok": True,

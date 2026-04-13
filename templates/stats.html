@@ -64,7 +64,60 @@
         </div>
       </div>
 
-      
+      <div class="section" style="padding:12px;">
+        <div style="font-weight:900;">Recent Engagement Windows</div>
+
+        {% if events|length == 0 %}
+          <div style="margin-top:8px;color:var(--muted);font-weight:800;">
+            No engagement data yet — open a reading page and read for a bit.
+          </div>
+        {% else %}
+          <div style="display:grid;gap:8px;margin-top:10px;">
+            {% for e in events %}
+              <div class="chip" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <span>
+                  {{ e.label }} ({{ '%.2f'|format(e.score) }})
+                </span>
+                <span style="color:var(--muted);">
+                  {{ e.display_time }}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="section" style="padding:12px;">
+        <div style="font-weight:900;">Recent Quiz Results</div>
+
+        {% if quiz_results and quiz_results|length > 0 %}
+          <div style="display:grid;gap:8px;margin-top:10px;">
+            {% for quiz in quiz_results %}
+              <div class="chip" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <span>
+                  {{ quiz.story_id }} — {{ quiz.score }}/{{ quiz.total }}
+                </span>
+
+                <span>
+                  {% if quiz.passed %}
+                    ✅ Passed
+                  {% else %}
+                    ❌ Failed
+                  {% endif %}
+                </span>
+
+                <span style="color:var(--muted);">
+                  {{ quiz.display_time }}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="margin-top:8px;color:var(--muted);font-weight:800;">
+            No quiz attempts yet.
+          </div>
+        {% endif %}
+      </div>
 
       <div class="navrow">
         <a class="smallbtn" href="/results">Back to Progress 🏆</a>
@@ -79,28 +132,7 @@
 <script id="events-data" type="application/json">
   {{ events|tojson }}
 </script>
-  <div class="section" style="padding:12px;">
-    <div style="font-weight:900;">Recent Engagement Windows</div>
 
-    {% if events|length == 0 %}
-      <div style="margin-top:8px;color:var(--muted);font-weight:800;">
-        No engagement data yet — open a reading page and read for a bit.
-      </div>
-    {% else %}
-      <div style="display:grid;gap:8px;margin-top:10px;">
-        {% for e in events %}
-          <div class="chip" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <span>
-              {{ e.label }} ({{ '%.2f'|format(e.score) }})
-            </span>
-            <span style="color:var(--muted);">
-              {{ e.display_time }}
-            </span>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </div>
 
 <script>
   const rawEvents = document.getElementById("events-data").textContent;

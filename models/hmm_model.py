@@ -1,39 +1,18 @@
 # models/hmm_model.py
 
-"""
-Simple HMM-style engagement model.
-
-This model estimates a hidden engagement state:
-- disengaged
-- neutral
-- engaged
-
-using:
-1. transition probabilities (how likely the state is to stay the same or change)
-2. emission probabilities (how well the observed behaviour fits each state)
-
-This version is deliberately simple so it is easier to understand and explain.
-"""
-
 from typing import Dict
 
-# The three hidden states we want to predict
 STATES = ["disengaged", "neutral", "engaged"]
 
 
 def clamp_0_1(value: float) -> float:
-    """Keep a value between 0 and 1."""
     return max(0.0, min(1.0, value))
 
 
 def normalise(probabilities: Dict[str, float]) -> Dict[str, float]:
-    """
-    Convert raw scores into probabilities that sum to 1.
-    """
     total = sum(probabilities.values())
 
     if total <= 0:
-        # Fallback: equal probability if something goes wrong
         equal = 1.0 / len(probabilities)
         return {state: equal for state in probabilities}
 
@@ -41,50 +20,34 @@ def normalise(probabilities: Dict[str, float]) -> Dict[str, float]:
 
 
 def get_transition_matrix() -> Dict[str, Dict[str, float]]:
-    """
-    Transition probabilities between hidden states.
-
-    Example:
-    If the user was engaged last time, they are quite likely
-    to still be engaged in the next 10-second window.
-    """
     return {
         "disengaged": {
-            "disengaged": 0.70,
-            "neutral": 0.25,
-            "engaged": 0.05,
+            "disengaged": 0.72,
+            "neutral": 0.22,
+            "engaged": 0.06,
         },
         "neutral": {
-            "disengaged": 0.20,
-            "neutral": 0.60,
-            "engaged": 0.20,
+            "disengaged": 0.18,
+            "neutral": 0.64,
+            "engaged": 0.18,
         },
         "engaged": {
-            "disengaged": 0.05,
-            "neutral": 0.25,
-            "engaged": 0.70,
+            "disengaged": 0.06,
+            "neutral": 0.22,
+            "engaged": 0.72,
         },
     }
 
 
 def get_initial_probabilities() -> Dict[str, float]:
-    """
-    Starting probabilities when no previous state is known.
-    """
     return {
         "disengaged": 0.20,
-        "neutral": 0.40,
-        "engaged": 0.40,
+        "neutral": 0.45,
+        "engaged": 0.35,
     }
 
 
 def emission_scores_from_features(features: dict) -> Dict[str, float]:
-    """
-    Convert the current behaviour window into raw scores for each hidden state.
-
-    These are not final probabilities yet.
-    They describe how well the observed behaviour fits each state.
-    """
     idle_ratio = float(features["idle_ratio"])
     scroll_speed = float(features["scroll_speed_px_s"])
     scroll_depth = float(features["scroll_depth_ratio"])
@@ -92,63 +55,104 @@ def emission_scores_from_features(features: dict) -> Dict[str, float]:
     nav_rate = float(features["nav_rate_per_min"])
     interaction_rate = float(features["interaction_rate_per_min"])
 
+    fast_scroll_bursts = float(features.get("fast_scroll_bursts", 0))
+    active_reading_ratio = float(features.get("active_reading_ratio", 0.5))
+    max_scroll_speed = float(features.get("max_scroll_speed_px_s", 0.0))
+
     # -----------------------------
     # Disengaged evidence
     # -----------------------------
     disengaged_score = 0.0
 
-    # High idle is a strong disengagement signal
-    disengaged_score += idle_ratio * 2.0
-
-    # High focus loss (tab switching away) is also strong
+    disengaged_score += idle_ratio * 1.8
     disengaged_score += focus_loss * 2.0
+    disengaged_score += (1.0 - scroll_depth) * 0.4
 
-    # Very low depth means little reading progress
-    disengaged_score += (1.0 - scroll_depth) * 0.8
+    if 220.0 < scroll_speed <= 350.0:
+        disengaged_score += 0.4
+    elif 350.0 < scroll_speed <= 550.0:
+        disengaged_score += 0.9
+    elif scroll_speed > 550.0:
+        disengaged_score += 1.4
 
-    # Very low interaction can also suggest disengagement
-    disengaged_score += max(0.0, 1.0 - (interaction_rate / 5.0)) * 0.5
+    if fast_scroll_bursts >= 5:
+        disengaged_score += 1.1
+    elif fast_scroll_bursts >= 3:
+        disengaged_score += 0.6
+
+    if max_scroll_speed >= 1600.0:
+        disengaged_score += 2.0
+    elif max_scroll_speed >= 1100.0:
+        disengaged_score += 1.2
+    elif max_scroll_speed >= 800.0:
+        disengaged_score += 0.6
+
+    if active_reading_ratio < 0.20:
+        disengaged_score += 0.8
+    elif active_reading_ratio < 0.40:
+        disengaged_score += 0.3
+
+    if nav_rate > 8.0:
+        disengaged_score += 0.3
 
     # -----------------------------
     # Engaged evidence
     # -----------------------------
     engaged_score = 0.0
 
-    # Low idle and low focus loss are good signs
     engaged_score += (1.0 - idle_ratio) * 1.2
     engaged_score += (1.0 - focus_loss) * 1.2
+    engaged_score += scroll_depth * 1.0
 
-    # Good reading progress helps
-    engaged_score += scroll_depth * 1.2
+    if 5.0 <= scroll_speed <= 110.0:
+        engaged_score += 0.9
+    elif 110.0 < scroll_speed <= 180.0:
+        engaged_score += 0.4
+    elif 180.0 < scroll_speed <= 230.0:
+        engaged_score += 0.1
 
-    # Moderate reading scroll speed is better than extremes
-    if 5.0 <= scroll_speed <= 160.0:
-        engaged_score += 0.8
-    elif 160.0 < scroll_speed <= 260.0:
-        engaged_score += 0.3
-
-    # Some interaction is useful, but not too much
     if 0.5 <= interaction_rate <= 5.0:
-        engaged_score += 0.5
+        engaged_score += 0.4
 
-    # Too much navigation can hurt engaged score
+    if active_reading_ratio >= 0.75:
+        engaged_score += 0.8
+    elif active_reading_ratio >= 0.55:
+        engaged_score += 0.4
+
+    if fast_scroll_bursts == 0:
+        engaged_score += 0.2
+    elif fast_scroll_bursts >= 4:
+        engaged_score -= 0.7
+
+    if max_scroll_speed >= 1100.0:
+        engaged_score -= 1.0
+    elif max_scroll_speed >= 800.0:
+        engaged_score -= 0.5
+
     if nav_rate > 6.0:
         engaged_score -= 0.3
+
+    if focus_loss > 0.35:
+        engaged_score -= 0.5
 
     # -----------------------------
     # Neutral evidence
     # -----------------------------
-    # Neutral is strongest when neither engaged nor disengaged dominates
     neutral_score = 1.0
 
-    # If values are moderate, increase neutral score
-    if 0.20 <= idle_ratio <= 0.60:
+    if 0.15 <= idle_ratio <= 0.55:
         neutral_score += 0.4
     if 0.05 <= focus_loss <= 0.30:
         neutral_score += 0.4
     if 0.10 <= scroll_depth <= 0.60:
-        neutral_score += 0.4
+        neutral_score += 0.3
     if 0.5 <= interaction_rate <= 2.5:
+        neutral_score += 0.2
+    if 180.0 < scroll_speed <= 320.0:
+        neutral_score += 0.25
+    if 0.35 <= active_reading_ratio <= 0.65:
+        neutral_score += 0.3
+    if 1 <= fast_scroll_bursts <= 2:
         neutral_score += 0.2
 
     raw_scores = {
@@ -157,20 +161,20 @@ def emission_scores_from_features(features: dict) -> Dict[str, float]:
         "engaged": max(0.01, engaged_score),
     }
 
-    return normalise(raw_scores)
+    probabilities = normalise(raw_scores)
+
+    # Only hard-cap truly extreme skimming
+    if fast_scroll_bursts >= 5 or max_scroll_speed >= 1600.0:
+        probabilities["engaged"] = min(probabilities["engaged"], 0.15)
+        probabilities = normalise(probabilities)
+
+    return probabilities
 
 
 def apply_hmm_step(
     previous_probabilities: Dict[str, float],
     emission_probabilities: Dict[str, float],
 ) -> Dict[str, float]:
-    """
-    Perform one HMM filtering step.
-
-    new_prob(state) =
-        emission_prob(state) *
-        sum(previous_prob(old_state) * transition(old_state -> state))
-    """
     transitions = get_transition_matrix()
     new_probabilities: Dict[str, float] = {}
 
@@ -191,19 +195,10 @@ def apply_hmm_step(
 
 
 def label_from_probabilities(probabilities: Dict[str, float]) -> str:
-    """Return the state with the highest probability."""
     return max(probabilities, key=probabilities.get)
 
 
 def score_from_label_probabilities(probabilities: Dict[str, float]) -> float:
-    """
-    Convert the state probabilities into a single 0-1 engagement score.
-
-    We map:
-    disengaged -> 0.0
-    neutral    -> 0.5
-    engaged    -> 1.0
-    """
     score = (
         probabilities["disengaged"] * 0.0
         + probabilities["neutral"] * 0.5
@@ -216,26 +211,6 @@ def predict_engagement(
     features: dict,
     previous_state_data: dict | None = None,
 ) -> dict:
-    """
-    Predict engagement using a simple HMM-style model.
-
-    Args:
-        features: current behaviour window
-        previous_state_data: previous HMM probabilities from the last window,
-                             for example:
-                             {
-                                 "disengaged": 0.1,
-                                 "neutral": 0.3,
-                                 "engaged": 0.6
-                             }
-
-    Returns:
-        {
-            "score": float,
-            "label": str,
-            "state_probabilities": {...}
-        }
-    """
     emission_probabilities = emission_scores_from_features(features)
 
     if previous_state_data is None:
@@ -245,6 +220,13 @@ def predict_engagement(
         previous_probabilities=previous_state_data,
         emission_probabilities=emission_probabilities,
     )
+
+    fast_scroll_bursts = float(features.get("fast_scroll_bursts", 0))
+    max_scroll_speed = float(features.get("max_scroll_speed_px_s", 0.0))
+
+    if fast_scroll_bursts >= 5 or max_scroll_speed >= 1600.0:
+        state_probabilities["engaged"] = min(state_probabilities["engaged"], 0.15)
+        state_probabilities = normalise(state_probabilities)
 
     label = label_from_probabilities(state_probabilities)
     score = score_from_label_probabilities(state_probabilities)

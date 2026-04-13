@@ -8,6 +8,21 @@
 </head>
 
 <body data-bg="{{ state.selected_bg }}">
+  {% set buddy_img = 'default.png' %}
+  {% if state.selected_avatar == 'blueTrainer' %}
+    {% if state.last_engagement_label == 'disengaged' %}
+      {% set buddy_img = 'steven.png' %}
+    {% else %}
+      {% set buddy_img = 'steven-gen6.png' %}
+    {% endif %}
+  {% elif state.selected_avatar == 'blondeTrainer' %}
+    {% if state.last_engagement_label == 'disengaged' %}
+      {% set buddy_img = 'cynthia.png' %}
+    {% else %}
+      {% set buddy_img = 'cynthia-gen4.png' %}
+    {% endif %}
+  {% endif %}
+
   <main class="app">
     <div class="page">
 
@@ -29,6 +44,26 @@
           Tip: Read normally. Engagement detection runs in the background.
         </div>
       </section>
+
+      {% if streak_popup %}
+      <div id="streakPopup" class="streak-popup show">
+        <div class="streak-popup-icon">🔥</div>
+        <div class="streak-popup-body">
+          <div class="streak-popup-title">{{ streak_popup.title }}</div>
+          <div class="streak-popup-text">{{ streak_popup.text }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div id="buddySupport" class="buddy-support hidden" aria-live="polite">
+        <img
+          class="buddy-support-img"
+          src="{{ url_for('static', filename='avatars/' ~ buddy_img) }}"
+          alt="Buddy"
+          onerror="this.onerror=null;this.src='/static/avatars/default.png';"
+        />
+        <div class="buddy-support-text" id="buddySupportText">Keep going.</div>
+      </div>
 
     </div>
   </main>

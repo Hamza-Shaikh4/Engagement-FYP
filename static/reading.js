@@ -5,6 +5,17 @@ let latestTrackerResult = {
   latestIdleRatio: 0
 };
 
+let lastBuddyMessageAt = 0;
+const BUDDY_SUPPORT_COOLDOWN_MS = 6000;
+
+const LOW_ENGAGEMENT_LINES = [
+  "Try one more paragraph.",
+  "Take it slowly.",
+  "Focus on this page.",
+  "Keep going — read carefully.",
+  "You’re doing fine. Keep reading."
+];
+
 async function startReadingSession() {
   await fetch("/api/start_reading", {
     method: "POST",
@@ -48,6 +59,44 @@ async function loadStory() {
   }
 }
 
+function showBuddySupport(message) {
+  const box = document.getElementById("buddySupport");
+  const text = document.getElementById("buddySupportText");
+
+  if (!box || !text) return;
+
+  text.textContent = message;
+  box.classList.remove("hidden");
+  box.classList.add("show");
+}
+
+function hideBuddySupport() {
+  const box = document.getElementById("buddySupport");
+  if (!box) return;
+
+  box.classList.remove("show");
+  box.classList.add("hidden");
+}
+
+function pickLowEngagementLine() {
+  const index = Math.floor(Math.random() * LOW_ENGAGEMENT_LINES.length);
+  return LOW_ENGAGEMENT_LINES[index];
+}
+
+window.onEngagementFeedback = function (result) {
+  const now = Date.now();
+  const score = Number(result.score || 0);
+
+  if (score <= 0.30 || result.label === "disengaged") {
+    if ((now - lastBuddyMessageAt) >= BUDDY_SUPPORT_COOLDOWN_MS) {
+      showBuddySupport(pickLowEngagementLine());
+      lastBuddyMessageAt = now;
+    }
+  } else {
+    hideBuddySupport();
+  }
+};
+
 async function finishBook() {
   window.__TRACKING_PAUSED__ = true;
 
@@ -88,8 +137,7 @@ async function finishBook() {
     return;
   }
 
-  alert("Nice work! ✅\n\n+40 XP\nHealth reset ❤️\n\nNext content may be unlocked in the library!");
-  window.location.href = "/books";
+  window.location.href = "/books?celebrate=1";
 }
 
 window.setLatestTrackerResult = function (result) {

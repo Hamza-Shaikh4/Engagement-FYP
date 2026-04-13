@@ -28,7 +28,7 @@ def default_state(user_id: str) -> dict:
         "health": 60,
         "streak": 0,
         "last_active_date": None,
-        "selected_avatar": "🙂",
+        "selected_avatar": "default",
         "selected_bg": "bg-default",
         "completed_books_json": "[]",
         "achievements_json": "[]",
@@ -46,6 +46,42 @@ def default_state(user_id: str) -> dict:
 def create_user_if_needed(user_id: str) -> None:
     """Create a user and default state if they do not exist yet."""
     connection = get_db()
+
+    # Make sure the tables exist in case the DB file was deleted
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            created_at TEXT NOT NULL
+        )
+        """
+    )
+
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS state (
+            user_id TEXT PRIMARY KEY,
+            xp INTEGER NOT NULL,
+            level INTEGER NOT NULL,
+            health INTEGER NOT NULL,
+            streak INTEGER NOT NULL,
+            last_active_date TEXT,
+            selected_avatar TEXT NOT NULL,
+            selected_bg TEXT NOT NULL,
+            completed_books_json TEXT NOT NULL,
+            achievements_json TEXT NOT NULL,
+            last_engagement_label TEXT NOT NULL,
+            last_engagement_score REAL NOT NULL,
+            last_support_message TEXT NOT NULL,
+            health_last_decay_date TEXT,
+            disengaged_streak_windows INTEGER NOT NULL DEFAULT 0,
+            engaged_streak_windows INTEGER NOT NULL DEFAULT 0,
+            idle_streak_windows INTEGER NOT NULL DEFAULT 0,
+            idle_penalty_latched INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY(user_id) REFERENCES users(user_id)
+        )
+        """
+    )
 
     existing = connection.execute(
         "SELECT user_id FROM state WHERE user_id = ?",
