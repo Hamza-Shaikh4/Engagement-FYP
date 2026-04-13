@@ -61,7 +61,7 @@ function updateAvatarUI(state) {
     <img
       src="${imagePath}"
       alt="${avatarName}"
-      style="width:72px;height:72px;image-rendering:pixelated;"
+      class="hud-avatar-img"
     >
   `;
 }

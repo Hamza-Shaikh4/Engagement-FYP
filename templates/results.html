@@ -1,58 +1,126 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Progress</title>
+  <title>Quests</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body data-bg="{{ state['selected_bg'] }}">
 
 <main class="app">
-<div class="page">
+  <div class="page">
 
-<header class="topbar">
-  <a class="iconbtn" href="/">🏠</a>
-  <div class="title">Your Progress</div>
-  <span style="width:38px;"></span>
-</header>
+    <header class="topbar">
+      <a class="iconbtn" href="/">🏠</a>
+      <div class="title">Quests</div>
+      <span style="width:38px;"></span>
+    </header>
 
-<section class="section stack">
+    <section class="section stack">
 
-  <div class="toast">🎯 Objectives</div>
+      <div class="section" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:12px;font-weight:900;opacity:.7;text-transform:uppercase;">Level</div>
+            <div style="font-size:24px;font-weight:900;">{{ state['level'] }}</div>
+          </div>
 
-  <div class="section" style="padding:12px;">
-    <ul style="margin:0;padding-left:18px;font-weight:800;">
-      <li>Finish Book 1 {% if "book1" in state["completed_books"] %}✅{% endif %}</li>
-      <li>Finish Book 2 {% if "book2" in state["completed_books"] %}✅{% endif %}</li>
-      <li>Finish Book 3 {% if "book3" in state["completed_books"] %}✅{% endif %}</li>
-      <li>Reach Streak 5 {% if state["streak"] >= 5 %}✅{% endif %}</li>
-    </ul>
-  </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;font-weight:900;opacity:.7;text-transform:uppercase;">XP</div>
+            <div style="font-size:18px;font-weight:900;">{{ state['xp'] }} XP</div>
+          </div>
+        </div>
 
-  <div class="toast">🏅 Achievements</div>
+        <div style="margin-top:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;color:var(--muted);margin-bottom:6px;">
+            <span>Progress to next level</span>
+            <span>{{ current_level_xp }}/{{ level_goal }}</span>
+          </div>
 
-  <div class="section" style="padding:12px;">
-    {% if state["achievements"]|length == 0 %}
-      <div class="muted" style="font-weight:900;">
-        No achievements yet — finish a book to earn one!
+          <div class="healthBar quest-xp-bar" style="height:18px;">
+            <div id="questXpFill" data-width="{{ current_level_xp }}"></div>
+          </div>
+        </div>
       </div>
-    {% else %}
-      {% for a in state["achievements"] %}
-        <div class="chip" style="margin-bottom:6px;">🏅 {{ a }}</div>
-      {% endfor %}
-    {% endif %}
+
+      <div class="toast">🎯 Complete quests to earn XP, level up, and unlock rewards.</div>
+
+      <div class="section" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="font-weight:900;">Quest Progress</div>
+          <div class="chip">{{ completed_quests }}/{{ quests|length }} complete</div>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:12px;">
+        {% for quest in quests %}
+          <div class="section quest-card {% if quest.done %}quest-card-complete{% endif %}" style="padding:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:18px;font-weight:900;">
+                  {% if quest.done %}✅{% else %}⭐{% endif %}
+                  {{ quest.title }}
+                </div>
+                <div class="muted" style="margin-top:4px;font-weight:700;">
+                  {{ quest.description }}
+                </div>
+              </div>
+
+              <div class="chip">
+                {{ quest.reward }}
+              </div>
+            </div>
+
+            <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+              <div style="font-size:13px;font-weight:800;color:var(--muted);">
+                Progress: {{ quest.progress_text }}
+              </div>
+
+              {% if quest.done %}
+                <div style="font-size:13px;font-weight:900;color:#15803d;">Reward earned</div>
+              {% else %}
+                <div style="font-size:13px;font-weight:900;color:#7a4f00;">In progress</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="toast">🏅 Achievements</div>
+
+      <div class="section" style="padding:12px;">
+        {% if state["achievements"]|length == 0 %}
+          <div class="muted" style="font-weight:900;">
+            No achievements yet — finish a book or keep a streak to earn one.
+          </div>
+        {% else %}
+          {% for a in state["achievements"] %}
+            <div class="chip" style="margin-bottom:6px;">🏅 {{ a }}</div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="navrow">
+        <a class="smallbtn" href="/books">Go to Library 📚</a>
+        <a class="smallbtn" href="/stats">View Stats 📊</a>
+        <a class="smallbtn" href="/avatar">Avatar Closet 👕</a>
+      </div>
+
+    </section>
+
   </div>
-
-
-  <div class="navrow">
-    <a class="smallbtn" href="/books">Go to Library 📚</a>
-    <a class="smallbtn" href="/stats">View Stats 📊</a>
-  </div>
-
-</section>
-
-</div>
 </main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const xpFill = document.getElementById("questXpFill");
+    if (xpFill) {
+      const width = Number(xpFill.dataset.width || 0);
+      xpFill.style.width = `${Math.max(0, Math.min(100, width))}%`;
+    }
+  });
+</script>
 
 </body>
 </html>

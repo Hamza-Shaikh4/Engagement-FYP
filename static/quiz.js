@@ -73,7 +73,7 @@ async function submitQuiz() {
 
   if (data.passed) {
     alert(`Nice work! You scored ${data.score}/${data.total}. Book completed ✅`);
-    window.location.href = "/books";
+    window.location.href = "/books?celebrate=1";
   } else {
     alert(`You scored ${data.score}/${data.total}. Try rereading the story and then come back.`);
     window.location.href = `/reading/${storyId}`;
