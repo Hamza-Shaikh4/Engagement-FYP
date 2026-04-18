@@ -1,12 +1,12 @@
 const WINDOW_SECONDS = 10;
-const IDLE_THRESHOLD_MS = 12000;
-const FAST_SCROLL_BURST_THRESHOLD = 650;
+const IDLE_THRESHOLD_MS = 18000;
 
 const storyId = String(window.STORY_ID || "").trim() || "unknown";
 
 const reader = document.getElementById("reader");
 const hasReader = Boolean(reader);
 
+const readingSessionStartMs = Date.now();
 let windowStartMs = Date.now();
 
 let totalScrollPx = 0;
@@ -28,8 +28,10 @@ let latestFocusLossRatio = 0;
 let latestIdleRatio = 0;
 
 let fastScrollBursts = 0;
-let maxScrollSpeedPxS = 0;
 let lastScrollEventMs = Date.now();
+
+let speedBucketDistancePx = 0;
+let speedBucketStartMs = Date.now();
 
 function createPanel() {
   let panel = document.getElementById("trackerPanel");
@@ -68,29 +70,34 @@ function markActivity() {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     hiddenStartMs = Date.now();
-  } else {
-    if (hiddenStartMs !== null) {
-      hiddenMsThisWindow += (Date.now() - hiddenStartMs);
-      hiddenStartMs = null;
-    }
+  } else if (hiddenStartMs !== null) {
+    hiddenMsThisWindow += (Date.now() - hiddenStartMs);
+    hiddenStartMs = null;
   }
 });
 
 function handleScroll(current) {
   const now = Date.now();
   const deltaPx = Math.abs(current - lastScrollPos);
-  const elapsedSeconds = Math.max(0.001, (now - lastScrollEventMs) / 1000);
+  const elapsedMs = now - lastScrollEventMs;
 
   totalScrollPx += deltaPx;
 
-  const instantSpeed = deltaPx / elapsedSeconds;
+  // Rolling bucket for burst detection
+  speedBucketDistancePx += deltaPx;
+  const bucketElapsedMs = now - speedBucketStartMs;
 
-  if (instantSpeed > maxScrollSpeedPxS) {
-    maxScrollSpeedPxS = instantSpeed;
-  }
+  if (bucketElapsedMs >= 160) {
+    const bucketSpeed = speedBucketDistancePx / (bucketElapsedMs / 1000);
 
-  if (instantSpeed >= FAST_SCROLL_BURST_THRESHOLD) {
-    fastScrollBursts += 1;
+    // One quick jump between sections is okay.
+    // Repeated jumps within a window are what matter.
+    if (bucketSpeed >= 260) {
+      fastScrollBursts += 1;
+    }
+
+    speedBucketDistancePx = 0;
+    speedBucketStartMs = now;
   }
 
   lastScrollPos = current;
@@ -100,37 +107,49 @@ function handleScroll(current) {
     maxScrollPosThisWindow = current;
   }
 
-  markActivity();
+  if (elapsedMs >= 40) {
+    markActivity();
+  }
 }
 
 if (hasReader) {
-  reader.addEventListener("scroll", () => {
-    handleScroll(reader.scrollTop);
-  }, { passive: true });
+  reader.addEventListener(
+    "scroll",
+    () => {
+      handleScroll(reader.scrollTop);
+    },
+    { passive: true }
+  );
 } else {
-  window.addEventListener("scroll", () => {
-    handleScroll(window.scrollY);
-  }, { passive: true });
+  window.addEventListener(
+    "scroll",
+    () => {
+      handleScroll(window.scrollY);
+    },
+    { passive: true }
+  );
 }
 
 window.addEventListener("click", (e) => {
   if (e.target.closest("[data-no-track='true']")) return;
-  interactionCount++;
+  interactionCount += 1;
   markActivity();
-  if (e.target.closest("a")) navigationCount++;
+  if (e.target.closest("a")) {
+    navigationCount += 1;
+  }
 });
 
 window.addEventListener("keydown", () => {
-  interactionCount++;
+  interactionCount += 1;
   markActivity();
 });
 
 window.addEventListener("mousemove", markActivity);
 
 setInterval(() => {
-  totalSamples++;
+  totalSamples += 1;
   if ((Date.now() - lastActivityMs) >= IDLE_THRESHOLD_MS) {
-    idleSamples++;
+    idleSamples += 1;
   }
 }, 250);
 
@@ -145,8 +164,10 @@ function resetWindow() {
   hiddenMsThisWindow = 0;
 
   fastScrollBursts = 0;
-  maxScrollSpeedPxS = 0;
   lastScrollEventMs = Date.now();
+
+  speedBucketDistancePx = 0;
+  speedBucketStartMs = Date.now();
 }
 
 function calculateFeatures() {
@@ -165,16 +186,20 @@ function calculateFeatures() {
   const interaction_rate_per_min = (interactionCount / safeSeconds) * 60;
 
   let scroll_depth_ratio = 0;
+  let maxScrollPossible = 1;
+
   if (hasReader) {
-    const maxScrollPossible = Math.max(1, reader.scrollHeight - reader.clientHeight);
+    maxScrollPossible = Math.max(1, reader.scrollHeight - reader.clientHeight);
     scroll_depth_ratio = Math.min(1, maxScrollPosThisWindow / maxScrollPossible);
   } else {
-    const maxScrollPossible = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    maxScrollPossible = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     scroll_depth_ratio = Math.min(1, maxScrollPosThisWindow / maxScrollPossible);
   }
 
   const focus_loss_ratio = Math.min(1, hiddenMsTotal / (safeSeconds * 1000));
   const active_reading_ratio = Math.max(0, 1 - Math.max(idle_ratio, focus_loss_ratio));
+  const progress_rate_ratio = Math.min(1, totalScrollPx / maxScrollPossible);
+  const elapsed_reading_time_s = (Date.now() - readingSessionStartMs) / 1000;
 
   return {
     story_id: storyId,
@@ -186,7 +211,8 @@ function calculateFeatures() {
     interaction_rate_per_min,
     fast_scroll_bursts: fastScrollBursts,
     active_reading_ratio,
-    max_scroll_speed_px_s: maxScrollSpeedPxS
+    progress_rate_ratio,
+    elapsed_reading_time_s
   };
 }
 
@@ -228,8 +254,9 @@ setInterval(async () => {
       `Support: ${result.support_message}\n\n` +
       `idle: ${features.idle_ratio.toFixed(2)}\n` +
       `speed: ${features.scroll_speed_px_s.toFixed(1)} px/s\n` +
-      `maxSpeed: ${features.max_scroll_speed_px_s.toFixed(1)} px/s\n` +
       `depth: ${features.scroll_depth_ratio.toFixed(2)}\n` +
+      `progressRate: ${features.progress_rate_ratio.toFixed(2)}\n` +
+      `elapsed: ${features.elapsed_reading_time_s.toFixed(1)}s\n` +
       `focusLoss: ${features.focus_loss_ratio.toFixed(2)}\n` +
       `bursts: ${features.fast_scroll_bursts}\n` +
       `activeRead: ${features.active_reading_ratio.toFixed(2)}\n`

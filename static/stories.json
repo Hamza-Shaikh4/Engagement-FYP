@@ -18,31 +18,31 @@
       },
       {
         "question": "What did Maya hear inside the library?",
-        "options": ["A teacher calling", "Pages turning by themselves", "Music playing"],
-        "answer": 1
+        "options": ["Pages turning by themselves", "A football match", "A school bell"],
+        "answer": 0
       }
     ]
   },
   {
     "id": "book2",
     "title": "The Park Mystery",
-    "summary": "A lost key opens something unexpected.",
+    "summary": "A missing kite leads to a small mystery.",
     "stage": 1,
     "text": "On Saturday morning, Noah raced to the park with his scooter rattling behind him. The grass was wet, and the air smelled fresh after the rain.\n\nHe was heading for the swings when he stopped.\n\nA sign hung from the big oak tree.\n\nMISSING!\nOne red kite.\nLast seen: Friday after school.\n\nNoah looked up at the branches stretching across the sky. He imagined a kite tangled high above, flapping like a trapped flag.\n\n\"Someone must be really sad,\" he said.\n\nNear the benches, Mrs Green was feeding crumbs to the pigeons.\n\n\"Did you lose a kite?\" Noah asked.\n\nMrs Green shook her head. \"Not mine, but I saw a little girl yesterday. The wind snatched it right out of her hands.\"\n\nNoah’s stomach tightened. He remembered the strong wind, pushing and pulling like it wanted to cause trouble.\n\nNoah scooted around the park, checking behind the slide and along the fence. He searched the bushes and the flower beds. No kite.\n\nThen he saw something red near the pond.\n\nIt was a strip of fabric caught on a thorny bush. Noah pulled gently and freed it. The fabric was tied into little bows.\n\n\"A kite tail,\" he whispered.\n\nHe followed it like a trail of clues. The string led under the wooden bridge.\n\nNoah lay flat and reached underneath. His fingers brushed against soggy paper.\n\n\"Got you,\" he said.\n\nHe pulled until a muddy red kite slid out. It was bent and wet, but still whole.\n\nAt home, Mum helped him dry it with towels and tape the tears. The kite wasn’t perfect, but it was better.\n\nBack at the park, Noah spotted the girl near the swings.\n\n\"Is this yours?\" he asked.\n\nHer eyes lit up. \"My kite!\"\n\nNoah smiled as the wind lifted it into the air.\n\nThis time, it felt like a friend.",
     "quiz": [
       {
         "question": "What was missing in the park?",
-        "options": ["A red kite", "A scooter", "A book"],
+        "options": ["A red kite", "A scooter", "A football"],
         "answer": 0
       },
       {
-        "question": "Where did Noah find part of the kite tail?",
-        "options": ["On a bench", "On a thorny bush", "In the slide"],
-        "answer": 1
+        "question": "Where did Noah find the kite tail?",
+        "options": ["On a thorny bush", "In the classroom", "On the swings"],
+        "answer": 0
       },
       {
         "question": "Where was the kite hidden?",
-        "options": ["Under the wooden bridge", "High in the tree", "Inside the flower bed"],
+        "options": ["Under the wooden bridge", "On the school roof", "In a flower pot"],
         "answer": 0
       }
     ]
@@ -52,22 +52,22 @@
     "title": "The Robot Lunchbox",
     "summary": "Lunch gets strange in the best way.",
     "stage": 1,
-    "text": "Leo opened his lunchbox and froze.\n\nSomething blinked.\n\n\"Mum?\" he whispered.\n\nInside the lunchbox sat a tiny silver robot, no bigger than an apple. Its eyes glowed blue.\n\n\"Hello, Leo,\" the robot said. \"I am R-3D.\"\n\nLeo snapped the lid shut.\n\nHe opened it again.\n\nThe robot was still there.\n\n\"You packed me by accident,\" R-3D said cheerfully.\n\nLeo glanced around the classroom. No one was watching.\n\n\"You can’t stay here,\" Leo whispered.\n\n\"I must observe lunch,\" the robot replied.\n\nAt break time, Leo sat under the tree and shared his sandwich. R-3D scanned each bite carefully.\n\n\"Conclusion,\" the robot announced. \"Cheese improves happiness.\"\n\nWhen the bell rang, R-3D climbed back into the lunchbox.\n\n\"Thank you,\" it said. \"Tomorrow, I will return home.\"\n\nThe next day, the lunchbox was normal again.\n\nBut Leo smiled.\n\nHis lunch felt quieter without the robot.",
+    "text": "Leo opened his lunchbox and froze.\n\nSomething blinked.\n\n\"Mum?\" he whispered.\n\nInside the lunchbox sat a tiny silver robot, no bigger than an apple. Its eyes glowed blue.\n\n\"Hello, Leo,\" the robot said. \"I am R-3D.\"\n\nLeo snapped the lid shut.\n\nHe opened it again.\n\nThe robot was still there.\n\n\"You packed me by accident,\" R-3D said cheerfully.\n\nLeo glanced around the classroom. No one was watching.\n\n\"You can’t stay here,\" Leo whispered.\n\n\"I must observe lunch,\" the robot replied.\n\nAt break time, Leo sat under the tree and shared his sandwich. R-3D scanned each bite carefully.\n\n\"Conclusion,\" the robot announced. \"Cheese improves happiness.\"\n\nLeo had to press his lips together to stop himself laughing.\n\n\"You can’t say things like that out loud,\" he whispered.\n\n\"Why not?\" asked R-3D. \"It is useful information.\"\n\nLeo looked around quickly. A few children were running across the playground, but nobody was close enough to hear.\n\n\"Because people will ask questions,\" he said.\n\nR-3D tilted its shiny head. \"Questions are good.\"\n\nLeo was not sure how to explain that some questions were harder than others.\n\nThe next day, the robot was still in the lunchbox.\n\nThis time, there was a tiny folded note beside it.\n\nPlease continue observations. I am learning.\n\nLeo stared at the note. He was almost certain it had not been there before.\n\nAt lunchtime, he took the lunchbox behind the bike shed where it was quieter.\n\nR-3D climbed onto the bench and looked around with bright blue eyes.\n\n\"Today I will study playground behaviour,\" it said.\n\n\"Please don’t,\" Leo muttered.\n\nBut the robot was already busy.\n\n\"Observation one,\" said R-3D. \"People trade snacks even when they said they were not hungry.\"\n\n\"That happens,\" Leo said.\n\n\"Observation two. Crisps are louder than apples.\"\n\nLeo nodded. \"Also true.\"\n\n\"Observation three,\" said the robot, lowering its voice as if it were sharing an important secret. \"The dinner lady likes the children but pretends to be stern.\"\n\nLeo blinked. \"How do you know that?\"\n\nR-3D pointed one tiny metal finger. \"She smiles only when she turns away.\"\n\nLeo looked toward the lunch hall door.\n\nHe had never noticed that before, but now that he thought about it, the robot might be right.\n\nOn Wednesday, Leo packed an extra biscuit just for R-3D.\n\nThe robot scanned it for several seconds.\n\n\"Round. Crumbly. Excellent,\" it declared.\n\n\"You can’t actually eat it,\" Leo reminded him.\n\n\"No,\" said R-3D. \"But I can appreciate it.\"\n\nThat made Leo laugh so loudly he had to pretend he was coughing when Sam from his class walked past.\n\nLater that afternoon, R-3D helped in a strange sort of way.\n\nLeo had lost his spelling sheet somewhere in the classroom. He checked his tray, his bag, and under his chair.\n\n\"Missing paper detected,\" said R-3D from inside the lunchbox.\n\n\"You detected that because I said I lost it,\" Leo whispered.\n\n\"Still correct,\" replied the robot.\n\nIt made a soft whirring sound and then said, \"Check near the paint pots. Air movement suggests paper fell there.\"\n\nLeo frowned and walked to the art shelf.\n\nThere, half hidden behind a tray of coloured pencils, was his spelling sheet.\n\nHe stared at it.\n\n\"How did you know?\"\n\n\"I am observant,\" said R-3D.\n\nFrom that day on, Leo started paying more attention too.\n\nHe noticed the squeak of the classroom door, the way his teacher tapped her pen when thinking, and the fact that Mina always read the last page of her book first.\n\nBy Thursday, having a robot in his lunchbox felt almost normal.\n\nAlmost.\n\nAt lunchtime, rain drummed against the windows so everyone had to stay inside. The classroom buzzed with voices, chair legs scraping, and the crinkle of wrappers.\n\nLeo kept the lunchbox only half open.\n\nR-3D peered out through the gap.\n\n\"Indoor lunch is noisier,\" it said.\n\n\"I know,\" Leo whispered.\n\n\"But also friendlier. People share jokes more often when it rains.\"\n\nLeo looked around. Children were laughing, trading stickers, and showing each other silly drawings on napkins.\n\nAgain, the robot was right.\n\n\"Do you always notice things like that?\" Leo asked.\n\n\"I notice what changes,\" said R-3D. \"That is how learning begins.\"\n\nOn Friday, Leo opened the lunchbox and found another note.\n\nThank you for your help.\nReturn scheduled soon.\n\nFor some reason, that made him feel disappointed.\n\nAt break time, he took the robot to their usual spot under the tree.\n\nThe grass still glistened from the morning drizzle, and the air smelled sharp and clean.\n\n\"Are you really leaving?\" Leo asked.\n\nR-3D looked up at him with its glowing blue eyes.\n\n\"Yes. My observations are nearly complete.\"\n\nLeo broke his sandwich in half and stared at the crumbs on the wrapper.\n\n\"It’s been less boring with you here,\" he admitted.\n\n\"That is a positive result,\" said R-3D.\n\nLeo smiled. \"I think that means I’ll miss you.\"\n\nThe robot was quiet for a moment.\n\nThen it said, \"I will record that friendship improves lunch quality.\"\n\nWhen the bell rang, R-3D climbed back into the lunchbox one last time.\n\n\"Thank you,\" it said. \"Tomorrow, I will return home.\"\n\nThe next day, the lunchbox was normal again.\n\nNo blinking lights.\n\nNo folded notes.\n\nNo tiny robot making strange observations about biscuits and playground rules.\n\nLeo sat at the kitchen table and opened the lid twice just to be sure.\n\nEmpty, except for his sandwich and an apple.\n\nBut tucked under the napkin was one final note.\n\nCheese still improves happiness.\n\nLeo laughed so suddenly that his mum looked around from the sink.\n\n\"What’s so funny?\" she asked.\n\n\"Nothing,\" Leo said, smiling.\n\nBut his lunch felt quieter without the robot.\n\nAnd somehow, also a little brighter.",
     "quiz": [
       {
         "question": "What did Leo find in his lunchbox?",
-        "options": ["A tiny silver robot", "A talking bird", "A toy car"],
+        "options": ["A tiny silver robot", "A toy bus", "A small cat"],
         "answer": 0
       },
       {
         "question": "What was the robot called?",
-        "options": ["B-2X", "R-3D", "L-9"],
-        "answer": 1
+        "options": ["R-3D", "B-2X", "L-9"],
+        "answer": 0
       },
       {
-        "question": "What did R-3D decide improves happiness?",
-        "options": ["Apples", "Juice", "Cheese"],
-        "answer": 2
+        "question": "What food did R-3D say improves happiness?",
+        "options": ["Cheese", "Soup", "Bananas"],
+        "answer": 0
       }
     ]
   },
@@ -80,140 +80,139 @@
     "quiz": [
       {
         "question": "What did Aisha find in the art room cupboard?",
-        "options": ["A silver whistle", "A folded map", "A brass key"],
-        "answer": 1
+        "options": ["A folded map", "A football shirt", "A music book"],
+        "answer": 0
       },
       {
         "question": "What was hidden inside the clock tower room?",
-        "options": ["A secret museum of school memories", "A science lab", "A music classroom"],
+        "options": ["A secret museum of school memories", "A swimming pool", "A science lab"],
         "answer": 0
       },
       {
         "question": "What missing object did Aisha find in the archive room?",
-        "options": ["A trophy", "A brass compass", "A notebook"],
-        "answer": 1
+        "options": ["A brass compass", "A silver whistle", "A paint brush"],
+        "answer": 0
       }
     ]
   },
   {
     "id": "book5",
-    "title": "Book 5",
-    "summary": "...",
+    "title": "The Midnight Greenhouse",
+    "summary": "A strange greenhouse seems to wake up at night.",
     "stage": 2,
-    "text": "...",
+    "text": "Sana only meant to feed the class hamster.\n\nThat was why she was still at school after the others had gone home.\n\nThe science room was quiet except for the soft scratch of the hamster running in its wheel. Outside, evening light stretched across the playground, turning the windows gold.\n\nSana tipped fresh food into the bowl and smiled. \"There you go, Pip.\"\n\nAs she turned to leave, she noticed a light outside.\n\nNot in the building.\n\nBeyond the back path, near the old greenhouse.\n\nSana stopped with her hand on the door.\n\nThe greenhouse had been locked for ages. Everyone said it was only used for broken trays and spare pots now.\n\nBut the light was definitely there.\n\nSoft and green.\n\nCuriosity tugged at her harder than common sense.\n\nShe stepped outside.\n\nThe air smelled damp and earthy after the afternoon rain. Small drops clung to the fence and sparkled in the fading light.\n\nThe old greenhouse stood at the edge of the school garden, its glass panels cloudy with age.\n\nAs Sana walked closer, the green glow brightened.\n\nInside, shapes moved.\n\nShe froze.\n\nLeaves.\n\nOnly leaves.\n\nAt least, that was what she told herself.\n\nThe door, which was always chained, was slightly open.\n\nSana pushed it gently.\n\nIt creaked with a long, complaining sound.\n\nInside, warm air wrapped around her face. The place smelled of soil, mint, and something sweet she could not name.\n\nRows of plants filled the room. Tall ones with silver stems. Tiny ones with curled purple leaves. Vines looped across strings overhead like green ribbons.\n\n\"This was not here before,\" Sana whispered.\n\nA tiny bell tinkled somewhere near the roof.\n\nShe looked up.\n\nOne hanging plant had turned slightly, as if it were following her.\n\nSana laughed nervously. \"That’s impossible.\"\n\nThen she saw the watering can.\n\nIt floated three centimetres above the table.\n\nShe gasped.\n\nThe watering can tipped itself carefully and poured water into a clay pot.\n\nNot too much.\n\nJust enough.\n\nSana took a slow step forward.\n\nA card was stuck into the pot.\n\nIt read: Moon Mint — likes quiet voices.\n\nShe stared at it.\n\n\"Hello?\" she whispered.\n\nAt once, the leaves of the Moon Mint shimmered. A cool smell drifted into the air, like peppermint and rain.\n\nAnother card sat beside a plant with round blue berries.\n\nStar Fruit Vine — hums when happy.\n\nSana leaned closer.\n\nVery softly, she heard it.\n\nA hum.\n\nLow and gentle, like someone singing far away.\n\nThe greenhouse did not feel frightening anymore.\n\nIt felt busy.\n\nAlive.\n\nOn the central bench stood a large terracotta pot with no plant inside at all.\n\nOnly dark soil.\n\nAnd a note.\n\nFor the next gardener.\n\nSana picked it up.\n\nThe paper was dry and crisp despite the damp air around it.\n\nThe greenhouse wakes for those who notice growing things. Water with care. Speak with kindness. Do not pull silver leaves after sunset.\n\nSana read the last line twice.\n\nNaturally, that made her want to look for silver leaves immediately.\n\nAt the far end of the greenhouse, she found them.\n\nA tall plant with narrow pale leaves that flashed like fish scales whenever they moved.\n\nOne leaf hung loose from the stem.\n\nSana reached out.\n\nThen stopped.\n\nDo not pull silver leaves after sunset.\n\n\"Fine,\" she muttered. \"I won’t.\"\n\nA small puff of warm air brushed her cheek, almost like approval.\n\nFor the next ten minutes, Sana wandered slowly between the benches, reading labels and watching the odd little things the plants seemed to do.\n\nA fern folded up when she sneezed.\n\nA row of orange flowers turned their faces toward her torch keyring.\n\nA vine dropped a seed neatly into an empty pot.\n\nThe floating watering can continued its patient work.\n\nThen Sana noticed something worrying.\n\nOne plant near the window had drooped so low its leaves touched the bench.\n\nIts label read: Glass Petal. Needs moonlight.\n\nBut a broken crate had been stacked in front of it, blocking the window.\n\n\"That’s not fair,\" Sana said.\n\nShe dragged the crate aside.\n\nMoonlight spilled in.\n\nAt once, the plant lifted.\n\nIts pale petals slowly opened, each one shining like frosted glass.\n\nSana grinned.\n\n\"You just needed the light.\"\n\nThe petals gave a faint chiming sound, delicate as tiny spoons touching tea cups.\n\nA new note slid from under the pot and landed on the bench.\n\nHelpful hands are welcome here.\n\nSana looked around quickly.\n\nNo one else was there.\n\nOnly the greenhouse.\n\nOnly the plants.\n\nOnly the strange green glow deepening now that the sky outside was turning dark blue.\n\nShe folded the note and placed it in her pocket.\n\nWhen she finally left, the floating watering can settled back onto the table as if nothing unusual had happened.\n\nAt the door, Sana looked back.\n\nThe Moon Mint shimmered.\n\nThe Star Fruit Vine hummed.\n\nAnd the Glass Petal shone softly in the moonlight.\n\nSana smiled.\n\n\"I’ll come back tomorrow,\" she said.\n\nThe tiny bell near the roof gave one cheerful ring.\n\nThis time, Sana was sure.\n\nThe greenhouse had heard her.",
     "quiz": [
       {
-        "question": "a",
-        "options": ["a", "b", "c"],
+        "question": "Why was Sana still at school?",
+        "options": ["To feed the class hamster", "To play football", "To wash paint brushes"],
         "answer": 0
       },
       {
-        "question": "b",
-        "options": ["a", "b", "c"],
-        "answer": 1
+        "question": "What colour was the strange light near the greenhouse?",
+        "options": ["Green", "Red", "Purple"],
+        "answer": 0
       },
       {
-        "question": "c",
-        "options": ["a", "b", "c"],
-        "answer": 2
+        "question": "What did the Glass Petal need?",
+        "options": ["Moonlight", "A loud noise", "A bigger pot"],
+        "answer": 0
       }
     ]
   },
   {
     "id": "book6",
-    "title": "Book 6",
-    "summary": "...",
+    "title": "The Train in the Tunnel",
+    "summary": "An old tunnel hides something still waiting to move.",
     "stage": 2,
-    "text": "...",
+    "text": "Eli and his grandad were meant to be collecting blackberries.\n\nThat was the plan, anyway.\n\nBut plans changed when Eli spotted the tunnel.\n\nIt was hidden behind a wall of brambles near the edge of the old railway path. Most people passed without noticing it. The stone arch was dark with moss, and ivy hung over the top like a curtain.\n\n\"Was that always there?\" Eli asked.\n\nGrandad looked up from his basket. \"The tunnel? Yes. Old freight line. Closed before you were born. Closed before your mum was born too.\"\n\nEli stepped closer.\n\nCool air drifted out of the tunnel, carrying the smell of wet stone and earth.\n\n\"Can we go inside?\"\n\nGrandad gave him a long look. \"Only a little way. And only if you stay beside me.\"\n\nThat was all the permission Eli needed.\n\nThey switched on their torches and stepped under the arch.\n\nAt once, the outside world seemed to soften. The sound of birds became faint. The warm afternoon air disappeared. Water dripped somewhere in the darkness ahead.\n\nTheir footsteps echoed.\n\n\"This is brilliant,\" Eli whispered.\n\n\"Railway tunnels usually are,\" Grandad said.\n\nThe walls curved high above them. Bricks glistened where water had run down in thin silver lines. Small weeds pushed through cracks near the entrance.\n\nA few metres in, Eli saw something painted on the wall.\n\nAn old sign.\n\nNO ENTRY WITHOUT LAMP.\n\n\"We have lamps,\" Eli said proudly, lifting his torch.\n\nGrandad chuckled. \"Good thing too.\"\n\nThey walked farther in.\n\nThe beam of Eli’s torch skipped across the ground.\n\nBroken stones.\n\nA rusted bolt.\n\nA patch of old rail half-buried in mud.\n\nThen the light landed on something larger.\n\nMetal.\n\nEli stopped.\n\nDown the tunnel, partly hidden in shadow, stood the front of a train carriage.\n\nNot moving.\n\nNot shiny.\n\nBut definitely there.\n\n\"Grandad,\" he said quietly. \"Was there always a train in here?\"\n\nGrandad lowered his basket.\n\n\"Well now,\" he murmured. \"That’s new to me.\"\n\nThey approached slowly.\n\nIt was only one carriage, not a whole train. Its paint had once been red, but rust and dust had turned it patchy brown. One window was cracked. Another was missing completely. On the side, faded letters still showed part of a word.\n\n...LINE.\n\nThe door hung slightly open.\n\nEli could hardly breathe for excitement.\n\n\"Can we look inside?\"\n\nGrandad hesitated.\n\nThen he nodded. \"Quick look. Together.\"\n\nThe steps creaked as they climbed up.\n\nInside, the carriage smelled of metal and old rain. Torn seats leaned at odd angles. A hat stand hung crooked near the entrance. Someone long ago had left a newspaper on the floor, now yellow and curled at the edges.\n\nEli picked it up carefully.\n\nMost of the print was blurred, but one headline could still be read.\n\nLAST SERVICE TONIGHT.\n\n\"This must be really old,\" he said.\n\nGrandad ran a hand along the dusty window frame. \"Older than it looks, maybe.\"\n\nAt the far end of the carriage was the driver’s compartment, separated by a narrow door.\n\nIt was shut.\n\nUnlike everything else, it looked polished.\n\nNo rust.\n\nNo dust.\n\nEli frowned.\n\n\"That’s weird.\"\n\nGrandad frowned too. \"Yes. That is weird.\"\n\nThen, from behind the door, came a soft ding.\n\nLike a bell.\n\nEli jumped.\n\nGrandad straightened at once.\n\n\"Did you hear that?\"\n\n\"Yes,\" Eli said.\n\nThey stood very still.\n\nDing.\n\nThe sound came again.\n\nNot loud.\n\nBut clear.\n\nGrandad moved first. He stepped toward the door and pressed his hand against it.\n\nSlowly, it swung inward.\n\nThe driver’s compartment was tiny and neat. Brass levers gleamed in the torchlight. The gauges on the panel were dusty, but the central clock was ticking.\n\nTick.\n\nTick.\n\nTick.\n\nEli stared at it.\n\n\"How can that still work?\"\n\nGrandad did not answer straight away.\n\nOn the dashboard sat a leather notebook.\n\nHe lifted it carefully.\n\nInside, on the first page, was written:\n\nFor the next passenger who finds the line.\n\nEli looked up.\n\n\"Passenger?\"\n\nGrandad turned the page.\n\nThe notebook contained short entries written in neat blue ink.\n\nFog tonight. Slow through the eastern bend.\nThree passengers after dark.\nLantern lost near the crossing.\nWait for the bell before departure.\n\nOn the final page was a single unfinished sentence.\n\nIf the carriage is found again, the line may be ready...\n\nA draught moved through the compartment.\n\nThe little bell rang once more.\n\nDing.\n\nEli looked out through the front window.\n\nFor a moment, he thought he saw lights deeper in the tunnel.\n\nNot torchlight.\n\nYellow lights, lined up in a row, as if another train were waiting far away.\n\nThen they vanished.\n\n\"Grandad,\" Eli whispered, \"I think this train is still expecting something.\"\n\nGrandad closed the notebook carefully.\n\n\"Maybe,\" he said. \"Or maybe it’s waiting for someone to remember it.\"\n\nThey left the carriage quietly.\n\nOutside, the tunnel no longer felt empty.\n\nIt felt paused.\n\nAs if the old line had not ended at all.\n\nAs if it had only been holding its breath.\n\nAt the tunnel mouth, sunlight greeted them again. Eli blinked at the brightness.\n\nThe brambles stirred in the breeze. Somewhere nearby, a blackbird sang.\n\nGrandad set down the blackberry basket and smiled.\n\n\"Well,\" he said, \"that was more exciting than fruit picking.\"\n\nEli laughed.\n\nIn his pocket, he realised he was still holding something.\n\nA small brass ticket punch he had not noticed picking up from the carriage floor.\n\nStamped into its handle were two tiny words.\n\nNIGHT LINE.\n\nHe looked back toward the tunnel.\n\nInside, from very far away, the little bell rang again.\n\nDing.",
     "quiz": [
       {
-        "question": "a",
-        "options": ["a", "b", "c"],
+        "question": "What were Eli and his grandad meant to be collecting?",
+        "options": ["Blackberries", "Shells", "Stamps"],
         "answer": 0
       },
       {
-        "question": "b",
-        "options": ["a", "b", "c"],
-        "answer": 1
+        "question": "What did they find in the tunnel?",
+        "options": ["An old train carriage", "A hidden classroom", "A boat"],
+        "answer": 0
       },
       {
-        "question": "c",
-        "options": ["a", "b", "c"],
-        "answer": 2
+        "question": "What words were stamped on the brass ticket punch?",
+        "options": ["Night Line", "Fast Track", "Old Rail"],
+        "answer": 0
       }
     ]
   },
   {
     "id": "book7",
-    "title": "Book 7",
-    "summary": "...",
+    "title": "The Snow Globe Map",
+    "summary": "A snow globe shows more than it should.",
     "stage": 3,
-    "text": "...",
+    "text": "Nadia was helping clean the charity shop when she found the snow globe.\n\nIt sat on the highest shelf behind a row of chipped mugs and old board games. The glass was dusty, but inside she could see a tiny town square with a fountain, a clock, and miniature trees covered in white glitter.\n\n\"That one’s pretty,\" Nadia said.\n\nMrs Ellis looked up from sorting books. \"Strange thing, that. Nobody ever buys it.\"\n\nNadia lifted it carefully. The base was painted dark blue, with silver stars around the edge.\n\nWhen she turned it upside down, the snow swirled in slow, sparkling loops.\n\nThen she froze.\n\nThe tiny fountain inside was moving.\n\nNot just the snow.\n\nThe water.\n\nNadia blinked and held the globe closer.\n\nThe little square looked real. One miniature lamppost flickered on.\n\n\"Mrs Ellis?\" Nadia began.\n\nBut when she glanced over, Mrs Ellis was busy with a box of old scarves.\n\nNadia looked back at the globe.\n\nAt the edge of the square stood a tiny sign she had not noticed before.\n\nIt read: MAP FOR THOSE WHO LOOK CLOSELY.\n\nThat evening, Nadia took the globe home. She set it on her desk beside her reading lamp.\n\nAt first nothing happened.\n\nThen, as night deepened, little lights began appearing one by one inside the globe.\n\nA window here.\n\nA lamppost there.\n\nThe fountain shimmered.\n\nAnd behind the tiny square, a road slowly appeared in silver lines.\n\nNadia leaned in.\n\nIt was changing into a map.\n\nThe roads branched outward from the square into miniature streets, bridges, and narrow alleys.\n\nOne corner of the glass glowed brighter than the rest.\n\nThere, on the inside of the globe, words appeared in tiny writing:\n\nLook for the place that is missing.\n\nNadia frowned.\n\nThe town looked complete.\n\nShe studied it for nearly ten minutes before noticing a gap near the river.\n\nA row of houses.\n\nA bridge.\n\nAnd then an empty patch where one building ought to be.\n\nNo shop.\n\nNo house.\n\nJust a blank space.\n\nThe next day, Nadia brought the globe back to the charity shop and showed it to Mrs Ellis.\n\n\"Do you recognise this place?\" she asked.\n\nMrs Ellis adjusted her glasses. \"It looks a little like the old town centre, years ago. Before the road changed.\"\n\nThat was enough for Nadia.\n\nAfter lunch, she cycled into town with the globe wrapped in her scarf inside the basket.\n\nShe parked near the real fountain and took the globe out carefully.\n\nThe square inside matched the square around her.\n\nThe clock tower was on the left.\n\nThe bakery was opposite.\n\nThe river path curved away behind the benches.\n\nNadia turned slowly in a circle.\n\nThen she saw it.\n\nNear the bridge stood a narrow boarded-up building squeezed between a chemist and a café.\n\nIt looked forgotten.\n\nDust coated the windows from inside. The sign above the door had faded so badly the lettering was almost gone.\n\nThis must be the missing place.\n\nNadia stepped closer.\n\nThe globe in her hands gave a tiny shiver.\n\nSnow swirled inside even though she had not shaken it.\n\nA single word appeared on the inside glass.\n\nENTER.\n\nNadia swallowed.\n\nThe door to the building was unlocked.\n\nIt opened with a dry creak.\n\nInside, the air smelled of paper and wood polish. Shafts of dusty light slanted through the front window. Shelves lined the walls from floor to ceiling.\n\nMost were empty.\n\nBut not all.\n\nAt the back of the shop stood a long counter. Behind it was a brass till and a stack of flat cardboard boxes tied with string.\n\nOn the wall hung an old map of the town.\n\nAnd above the map, in peeling gold letters, was the name of the place.\n\nBell & Star Maps.\n\nNadia stepped forward.\n\nA note lay on the counter as if someone had only just left it there.\n\nFor the one who found the missing shop.\n\nYour town forgets places when nobody notices them.\nMaps help them stay.\n\nNadia read the note twice.\n\nOn the shelf beside it stood rolled-up maps in cracked paper tubes. One was labelled: Winter Fair Route. Another: Lost Alleys. Another: Hidden Gardens.\n\nThe snow globe felt warm in her hands.\n\nNadia set it carefully on the counter.\n\nAt once, the tiny lights inside the globe brightened.\n\nAcross the room, the old town map on the wall shimmered faintly.\n\nA new silver line appeared, linking the shop to the fountain outside.\n\nNadia smiled.\n\nThe missing place was missing because people had stopped seeing it.\n\nBut now she had found it.\n\nShe rolled up one of the maps and tucked it under her arm.\n\nWhen she stepped back outside, the town square looked the same as before.\n\nAlmost.\n\nThe boarded-up windows were now clear.\n\nThe faded sign was readable.\n\nAnd as two people passed, Nadia heard one of them say, \"I never noticed that map shop before.\"\n\nNadia looked down at the globe.\n\nInside, tiny snow fell gently across the square.\n\nAnd the little sign by the fountain now read:\n\nPLACE REMEMBERED.",
     "quiz": [
       {
-        "question": "a",
-        "options": ["a", "b", "c"],
+        "question": "Where did Nadia find the snow globe?",
+        "options": ["In a charity shop", "At a train station", "Under her bed"],
         "answer": 0
       },
       {
-        "question": "b",
-        "options": ["a", "b", "c"],
-        "answer": 1
+        "question": "What kind of building was missing on the map?",
+        "options": ["A map shop", "A cinema", "A toy shop"],
+        "answer": 0
       },
       {
-        "question": "c",
-        "options": ["a", "b", "c"],
-        "answer": 2
+        "question": "What words appeared on the sign inside the globe at the end?",
+        "options": ["Place Remembered", "Keep Walking", "Map Complete"],
+        "answer": 0
       }
     ]
   },
   {
     "id": "book8",
-    "title": "Book 8",
-    "summary": "...",
+    "title": "The Lantern Letters",
+    "summary": "A row of lanterns leads to letters never delivered.",
     "stage": 3,
-    "text": "...",
+    "text": "Ben first noticed the lanterns on the river path.\n\nThere were six of them, hanging from the branches over the water.\n\nThat was strange for two reasons.\n\nFirst, nobody had put them there that afternoon.\n\nSecond, they were glowing, even though the sun had not fully gone down.\n\nBen slowed his bike and stared.\n\nSmall paper lanterns, each one a different colour.\n\nRed.\n\nBlue.\n\nGold.\n\nGreen.\n\nWhite.\n\nSilver.\n\nThe path was empty. The river moved quietly under the bridge. Somewhere in the reeds, a bird rustled.\n\nBen rested one foot on the ground.\n\nTied to the lowest lantern was an envelope.\n\nHe looked around again.\n\nNo one.\n\nThe envelope had no stamp and no address on the front. Only two neat words:\n\nFor Ben.\n\nHe nearly dropped it.\n\nSlowly, he opened the flap.\n\nInside was a single folded page.\n\nIf you are reading this, you noticed the lanterns.\nThat means the path is open again.\nFollow all six.\nDo not skip the silver one.\n\nBen read it twice.\n\nHe had no idea who wrote it.\n\nBut he knew one thing immediately.\n\nHe was definitely going to follow the lanterns.\n\nThe first hung beside the bridge. Beneath it, tucked into the tree bark, was another note.\n\nSome letters were never delivered.\nThey wait where light can still find them.\n\nThe second lantern hung farther along, near the old boathouse.\n\nUnder it, Ben found a small tin box hidden in the grass.\n\nInside was a letter tied with blue ribbon.\n\nHe unfolded it carefully.\n\nDear M,\nI was too nervous to say sorry properly.\nI should have.\nI hope one day I do.\n\nThere was no name.\n\nNo date.\n\nJust the letter.\n\nBen frowned.\n\nWas this one of the lost letters?\n\nThe third lantern waited by the stone steps that led down to the water.\n\nA second tin sat there, this time under a bench.\n\nInside was another note.\n\nNot all lost letters are sad.\n\nAnd another letter.\n\nDear Uncle Ray,\nThe model boat worked! It crossed the whole pond.\nI wish you had seen it.\n\nBen smiled despite himself.\n\nThe fourth lantern, the green one, hung outside the park gate.\n\nBy now the sky had turned violet and the path seemed quieter than ever. The lanterns glowed brighter as the evening darkened.\n\nThis time the letter was tucked behind the park noticeboard.\n\nDear J,\nThank you for sitting beside me on my first day.\nYou made school feel less scary.\n\nBen folded it carefully and slid it back.\n\nHe was starting to understand.\n\nThese were letters people had wanted to send, but for some reason never had.\n\nThe fifth lantern, white, waited at the bend in the path where the willow tree dipped low over the water.\n\nUnder it was the smallest envelope yet.\n\nDear Dad,\nI got the part in the play.\nYou said to tell you good news first.\n\nBen swallowed.\n\nFor a moment he just listened to the river.\n\nThe path no longer felt mysterious in a fun way.\n\nIt felt important.\n\nHe remembered the first note.\n\nDo not skip the silver one.\n\nSo he kept going.\n\nThe final lantern hung beyond the little footbridge where the path narrowed between tall reeds.\n\nIt was brighter than the others, almost glowing like moonlight.\n\nBeneath it stood an old postbox Ben had never seen before.\n\nIt was narrow and painted deep blue, with silver stars along the edge.\n\nOn the front was a slot and a tiny plaque.\n\nFOR LETTERS READY TO BE FOUND.\n\nBen stepped closer.\n\nInside the slot sat one last envelope.\n\nThis one was thicker.\n\nAnd on the front were the words:\n\nFor the one who followed the lanterns.\n\nHe opened it.\n\nSome letters do not need posting.\nSome only need reading.\nIf even one lost message is noticed, the path stays lit.\n\nAt the bottom was a question.\n\nWill you leave one too?\n\nBen looked around.\n\nBeside the postbox sat a pencil and a small stack of blank cards.\n\nHe laughed softly.\n\nOf course there was.\n\nHe sat on the wooden rail beside the bridge and thought for a long minute.\n\nThen he wrote.\n\nDear Mum,\nThanks for always waiting when I say I’ll only be five minutes.\n\nHe read it once, smiled, and slipped it into the postbox.\n\nAt once, all six lanterns glowed a little brighter.\n\nThe silver one gave off a soft shine across the river.\n\nBen looked back along the path and could still see every colour hanging in the branches like little stars.\n\nWhen he finally cycled home, he kept glancing over his shoulder.\n\nThe lanterns stayed lit until the path curved out of sight.\n\nThe next evening, he returned.\n\nThe lanterns were gone.\n\nSo was the postbox.\n\nBut on the bench by the bridge lay a single card.\n\nIn neat handwriting, it said:\n\nMessage received.",
     "quiz": [
       {
-        "question": "a",
-        "options": ["a", "b", "c"],
+        "question": "How many lanterns did Ben see at the start?",
+        "options": ["Six", "Three", "Nine"],
         "answer": 0
       },
       {
-        "question": "b",
-        "options": ["a", "b", "c"],
-        "answer": 1
+        "question": "Which lantern was Ben told not to skip?",
+        "options": ["The silver one", "The red one", "The green one"],
+        "answer": 0
       },
       {
-        "question": "c",
-        "options": ["a", "b", "c"],
-        "answer": 2
+        "question": "What did the card say at the end?",
+        "options": ["Message received", "Path closed", "Try again"],
+        "answer": 0
       }
     ]
   },
   {
     "id": "book9",
-    "title": "Book 9",
-    "summary": "...",
+    "title": "The House of Second Chances",
+    "summary": "A quiet house gives people one more try.",
     "stage": 3,
-    "text": "...",
+    "text": "Mila first saw the house on a street she had walked along dozens of times.\n\nThat was what made it strange.\n\nShe knew the bakery at the corner.\n\nShe knew the dentist with the blue door.\n\nShe knew the narrow alley beside the florist.\n\nBut she had never seen the pale yellow house standing between the florist and the newsagent.\n\nIt was small, with white steps, brass railings, and a front door painted a soft green.\n\nAbove the knocker hung a sign.\n\nHOUSE OF SECOND CHANCES.\n\nMila stopped dead.\n\nShe was sure the building had not been there yesterday.\n\nShe looked behind her, wondering whether she had somehow taken a wrong turn.\n\nNo.\n\nThere was the bakery.\n\nThere was the bus stop.\n\nThere was the cracked paving stone she always stepped over.\n\nEverything else was exactly where it should be.\n\nOnly the house was new.\n\nOr maybe it had been there all along and she had never noticed it.\n\nThat idea felt even stranger.\n\nThe front gate stood open.\n\nOn the step sat a little chalkboard.\n\nToday only.\nCome in if something was left unfinished.\n\nMila stared at the words.\n\nThat was uncomfortably specific.\n\nBecause there was, in fact, something unfinished.\n\nTwo days ago she had stormed out of a group project meeting after snapping at her friend Imani.\n\nThey had not spoken properly since.\n\nMila had replayed the moment in her head at least twenty times.\n\nEvery time, she thought of a better sentence she should have used.\n\nA calmer tone.\n\nA kinder face.\n\nA better ending.\n\nShe looked up at the yellow house again.\n\nThen, before she could talk herself out of it, she climbed the steps and knocked.\n\nThe door opened by itself.\n\nInside was a hallway lined with clocks.\n\nNot ticking clocks.\n\nWaiting clocks.\n\nEach one showed a different time, but none of the hands were moving.\n\nAt the end of the hallway sat a woman behind a small desk. She wore round glasses and a silver cardigan and looked as though she had been expecting Mila all afternoon.\n\n\"Welcome,\" she said warmly. \"Do you need another try?\"\n\nMila blinked. \"At what?\"\n\nThe woman smiled. \"Usually people know.\"\n\nMila looked down.\n\n\"Oh,\" she said quietly. \"That.\"\n\nThe woman opened a large book on the desk. Its pages were blank until she rested her hand on them. Then words appeared in grey ink.\n\nUnfinished apology. Sharp tone. Regret level: high.\n\nMila stared.\n\n\"That feels a bit rude,\" she said.\n\n\"It is also accurate,\" said the woman.\n\nShe tore a ticket from a silver pad and handed it over.\n\nOne return attempt,\nsaid the ticket.\nUse carefully.\n\n\"What do I do with it?\" Mila asked.\n\n\"Open the blue door upstairs,\" said the woman. \"You will know the rest.\"\n\nThe stairs creaked softly as Mila climbed. On the landing were three doors.\n\nRed.\n\nWhite.\n\nBlue.\n\nShe opened the blue one.\n\nInside was not a room.\n\nIt was the school library.\n\nNot exactly the library from now.\n\nThe library from two days ago.\n\nSame rain tapping the windows.\n\nSame chairs arranged around the project table.\n\nSame half-finished poster lying on the desk.\n\nAnd there was Imani, standing with folded arms, just as she had been before Mila snapped.\n\nMila’s heart banged against her ribs.\n\nShe looked down at the silver ticket in her hand.\n\nIts writing had changed.\n\nThis time, listen first.\n\nImani looked up.\n\n\"Are you even listening to me?\" she said.\n\nThat was the exact line.\n\nThe exact moment.\n\nMila remembered what she had said the first time.\n\nSomething quick.\n\nSomething sharp.\n\nSomething she wished she could take back.\n\nInstead, she drew a breath.\n\n\"I am now,\" she said.\n\nThe room went still.\n\nImani blinked.\n\nMila stepped closer.\n\n\"I was stressed,\" she said, \"but that wasn’t your fault. I should’ve said that better. Can we start again?\"\n\nFor half a second, nothing happened.\n\nThen Imani’s shoulders relaxed.\n\n\"Yes,\" she said. \"That would be nice.\"\n\nThe library brightened, as if someone had quietly lifted a curtain.\n\nThe rain outside softened.\n\nAnd the poster on the table, which had looked messy and awkward before, no longer seemed impossible.\n\nMila smiled in relief.\n\nShe looked at the ticket again.\n\nThe words now read:\n\nAttempt accepted.\n\nThe room blurred gently at the edges.\n\nThe next thing Mila knew, she was standing back in the yellow house holding an empty strip of silver paper.\n\nThe woman at the desk looked up.\n\n\"Better?\" she asked.\n\nMila nodded. \"Much.\"\n\n\"Good,\" said the woman. \"Second chances are wasted if people only use them to repeat themselves.\"\n\nMila laughed.\n\nWhen she stepped back onto the street, the late afternoon sun felt warmer than before.\n\nHer phone buzzed.\n\nA message from Imani.\n\nSorry things got weird earlier. Want to meet tomorrow and finish the poster?\n\nMila stopped walking.\n\nThen she smiled so wide her cheeks hurt.\n\nShe typed back at once.\n\nYes. And I owe you a better start.\n\nWhen she looked up again, the pale yellow house was gone.\n\nIn its place stood a narrow brick wall covered in ivy, as though no building had ever been there at all.\n\nOnly one thing remained.\n\nOn the pavement by her shoe lay a tiny silver ticket.\n\nOn the back, in neat writing, were four words.\n\nUse ordinary chances well.",
     "quiz": [
       {
-        "question": "a",
-        "options": ["a", "b", "c"],
+        "question": "What colour was the front door of the house?",
+        "options": ["Green", "Black", "Red"],
         "answer": 0
       },
       {
-        "question": "b",
-        "options": ["a", "b", "c"],
-        "answer": 1
+        "question": "Which door upstairs did Mila open?",
+        "options": ["Blue", "Yellow", "Orange"],
+        "answer": 0
       },
       {
-        "question": "c",
-        "options": ["a", "b", "c"],
-        "answer": 2
+        "question": "What message was on the ticket at the very end?",
+        "options": ["Use ordinary chances well", "Come back tomorrow", "House still open"],
+        "answer": 0
       }
     ]
   }
-
 ]

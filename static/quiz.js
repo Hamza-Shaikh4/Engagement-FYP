@@ -72,7 +72,11 @@ async function submitQuiz() {
   }
 
   if (data.passed) {
-    alert(`Nice work! You scored ${data.score}/${data.total}. Book completed ✅`);
+    if (data.calibration_saved && data.calibration_valid) {
+      alert(`Nice work! You scored ${data.score}/${data.total}. Calibration saved ✅`);
+    } else {
+      alert(`Nice work! You scored ${data.score}/${data.total}. Book completed ✅`);
+    }
     window.location.href = "/books?celebrate=1";
   } else {
     alert(`You scored ${data.score}/${data.total}. Try rereading the story and then come back.`);

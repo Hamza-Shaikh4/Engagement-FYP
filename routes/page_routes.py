@@ -48,19 +48,28 @@ def build_books_dialogue(stage_cards: list[dict], state: dict, celebrate: bool) 
     current_stage = next((stage for stage in stage_cards if stage["status"] == "current"), None)
     all_complete = bool(stage_cards) and all(stage["status"] == "completed" for stage in stage_cards)
 
+    completed_books = set(state["completed_books"])
     unlocked_rewards = []
-    completed_books = len(state["completed_books"])
 
-    if completed_books >= 1:
-        unlocked_rewards.append("Reward unlocked: new avatars are available.")
-    if completed_books >= 3:
-        unlocked_rewards.append("Reward unlocked: a new background is available.")
+    just_completed_book = None
+    if celebrate and state["completed_books"]:
+        just_completed_book = state["completed_books"][-1]
 
+    # Only show avatar unlock when Book 1 has just been completed
+    if just_completed_book == "book1":
+        unlocked_rewards.append("Reward unlocked: new avatars are available. Check the Avatar Closet.")
+
+    # Only show background unlock when Stage 1 is fully completed at Book 3
+    stage_1_books = {"book1", "book2", "book3"}
+    if just_completed_book == "book3" and stage_1_books.issubset(completed_books):
+        unlocked_rewards.append("Reward unlocked: a new background is available. Check the Avatar Closet.")
+
+    # Quest / achievement messages
     if state["streak"] == 3:
         unlocked_rewards.append("Quest complete: 3-day streak. You earned bonus XP.")
     if state["streak"] == 5:
         unlocked_rewards.append("Quest complete: 5-day streak. You earned bonus XP.")
-    if state["health"] >= 90 and completed_books >= 1:
+    if state["health"] >= 90 and len(completed_books) >= 1:
         unlocked_rewards.append("Quest complete: keep your buddy healthy. You earned bonus XP.")
 
     if celebrate and unlocked_rewards:
@@ -69,7 +78,7 @@ def build_books_dialogue(stage_cards: list[dict], state: dict, celebrate: bool) 
             "You earned XP for completing it.",
         ]
         lines.extend(unlocked_rewards)
-        lines.append("Open the Avatar Closet to see your rewards.")
+        lines.append("Choose your next book when you’re ready.")
         return lines
 
     if celebrate:
@@ -127,7 +136,6 @@ def build_books_dialogue(stage_cards: list[dict], state: dict, celebrate: bool) 
         "This is your books page.",
         "Pick a book to continue.",
     ]
-
 
 def build_quest_cards(state: dict) -> list[dict]:
     """

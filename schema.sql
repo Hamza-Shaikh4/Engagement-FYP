@@ -61,3 +61,20 @@ CREATE TABLE IF NOT EXISTS quiz_results (
     passed INTEGER NOT NULL,
     created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS user_calibration (
+    user_id TEXT PRIMARY KEY,
+    calibration_book_id TEXT NOT NULL,
+    self_report TEXT NOT NULL,
+    avg_scroll_speed REAL NOT NULL,
+    avg_idle_ratio REAL NOT NULL,
+    avg_scroll_depth REAL NOT NULL,
+    avg_interaction_rate REAL NOT NULL,
+    avg_active_reading_ratio REAL NOT NULL,
+    avg_reading_time_s REAL NOT NULL,
+    quiz_score INTEGER NOT NULL,
+    quiz_total INTEGER NOT NULL,
+    is_valid INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(user_id)
+);

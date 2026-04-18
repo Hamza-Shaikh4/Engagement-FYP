@@ -16,6 +16,51 @@ const LOW_ENGAGEMENT_LINES = [
   "You’re doing fine. Keep reading."
 ];
 
+function showCalibrationModal() {
+  const modal = document.getElementById("calibrationModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("show");
+  }
+}
+
+function hideCalibrationModal() {
+  const modal = document.getElementById("calibrationModal");
+  if (modal) {
+    modal.classList.remove("show");
+    modal.classList.add("hidden");
+  }
+}
+
+async function submitCalibrationResponse(selfReport) {
+  const storyId = window.STORY_ID || "book1";
+
+  const res = await fetch("/api/calibration_response", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      story_id: storyId,
+      self_report: selfReport
+    })
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert(data.error || "Could not save calibration response.");
+    return;
+  }
+
+  hideCalibrationModal();
+
+  if (data.needs_quiz) {
+    window.location.href = data.quiz_url;
+    return;
+  }
+
+  window.location.href = "/books?celebrate=1";
+}
+
 async function startReadingSession() {
   await fetch("/api/start_reading", {
     method: "POST",
@@ -132,6 +177,11 @@ async function finishBook() {
     return;
   }
 
+  if (data.calibration_required) {
+    showCalibrationModal();
+    return;
+  }
+
   if (data.needs_quiz) {
     window.location.href = data.quiz_url;
     return;
@@ -152,4 +202,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (finishBtn) {
     finishBtn.addEventListener("click", finishBook);
   }
+
+  const calibrationButtons = document.querySelectorAll("[data-calibration-response]");
+  calibrationButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      const response = button.getAttribute("data-calibration-response");
+      await submitCalibrationResponse(response);
+    });
+  });
 });
