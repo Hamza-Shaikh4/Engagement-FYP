@@ -1,3 +1,5 @@
+// This file fills the xp bar on the quests page.
+
 (async function () {
   async function loadState() {
     const res = await fetch("/api/state");

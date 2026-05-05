@@ -1,3 +1,5 @@
+"""This file stores the main settings for the project."""
+
 from pathlib import Path
 
 # Base folder of the project

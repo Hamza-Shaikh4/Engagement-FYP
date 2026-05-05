@@ -1,3 +1,5 @@
+"""This file creates the Flask app and starts the project."""
+
 from flask import Flask
 
 from config import SECRET_KEY

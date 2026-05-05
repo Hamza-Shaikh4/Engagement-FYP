@@ -1,12 +1,14 @@
+"""This file predicts engagement with the Hidden Markov model."""
+
 from typing import Dict
 
 STATES = ["disengaged", "neutral", "engaged"]
 
-
+# Keep a score between 0 and 1.
 def clamp_0_1(value: float) -> float:
     return max(0.0, min(1.0, value))
 
-
+# Turn raw values into probabilities that add up to 1.
 def normalise(probabilities: Dict[str, float]) -> Dict[str, float]:
     total = sum(probabilities.values())
 
@@ -16,7 +18,7 @@ def normalise(probabilities: Dict[str, float]) -> Dict[str, float]:
 
     return {state: value / total for state, value in probabilities.items()}
 
-
+# Return the HMM state change probabilities.
 def get_transition_matrix() -> Dict[str, Dict[str, float]]:
     return {
         "disengaged": {
@@ -36,7 +38,7 @@ def get_transition_matrix() -> Dict[str, Dict[str, float]]:
         },
     }
 
-
+# Return the starting HMM probabilities.
 def get_initial_probabilities() -> Dict[str, float]:
     return {
         "disengaged": 0.20,
@@ -44,7 +46,7 @@ def get_initial_probabilities() -> Dict[str, float]:
         "engaged": 0.35,
     }
 
-
+# Determine the progress band based on scroll depth, which affects how some features influence the engagement prediction.
 def get_progress_band(scroll_depth: float) -> str:
     if scroll_depth < 0.35:
         return "early"
@@ -52,7 +54,7 @@ def get_progress_band(scroll_depth: float) -> str:
         return "middle"
     return "late"
 
-
+# Convert features to probabilities of each engagement state, before applying the HMM transitions.
 def emission_scores_from_features(features: dict) -> Dict[str, float]:
     idle_ratio = float(features["idle_ratio"])
     scroll_speed = float(features["scroll_speed_px_s"])
@@ -299,7 +301,7 @@ def emission_scores_from_features(features: dict) -> Dict[str, float]:
 
     return probabilities
 
-
+# Apply the HMM transition step to update the engagement probabilities based on the previous state and current emission probabilities.
 def apply_hmm_step(
     previous_probabilities: Dict[str, float],
     emission_probabilities: Dict[str, float],
@@ -322,11 +324,11 @@ def apply_hmm_step(
 
     return normalise(new_probabilities)
 
-
+# Determine the most likely engagement label based on the probabilities.
 def label_from_probabilities(probabilities: Dict[str, float]) -> str:
     return max(probabilities, key=probabilities.get)
 
-
+# Convert the engagement probabilities into a single score between 0 and 1, where disengaged=0, neutral=0.5, and engaged=1.
 def score_from_label_probabilities(probabilities: Dict[str, float]) -> float:
     score = (
         probabilities["disengaged"] * 0.0
@@ -335,7 +337,7 @@ def score_from_label_probabilities(probabilities: Dict[str, float]) -> float:
     )
     return clamp_0_1(score)
 
-
+# Main function to predict engagement state and score from features and previous HMM state.
 def predict_engagement(
     features: dict,
     previous_state_data: dict | None = None,
@@ -417,9 +419,7 @@ def predict_engagement(
     label = label_from_probabilities(state_probabilities)
     score = score_from_label_probabilities(state_probabilities)
 
-    # Store idle streak inside the HMM state data so the next window can use it.
-    # The HMM transition step only reads "disengaged", "neutral", and "engaged",
-    # so this extra key will not interfere with the transition calculation.
+
     state_probabilities["_idle_streak_windows"] = idle_streak
 
     return {

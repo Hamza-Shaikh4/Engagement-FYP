@@ -1,3 +1,5 @@
+// This file runs the books page animation, and dialogue popup.
+
 document.addEventListener("DOMContentLoaded", () => {
   const toast = document.getElementById("lockedToast");
   const lockedCards = document.querySelectorAll("[data-locked='true'], .locked-btn");

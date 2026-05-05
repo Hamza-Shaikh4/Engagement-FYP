@@ -1,6 +1,6 @@
-/* ===========================
-   Reading App — Global Styles
-   =========================== */
+/* This file holds the shared styles used across the whole app. */
+
+/* These variables hold the main colours, spacing, and sizes used across the app. */
 
 :root{
   --bg-top: #d7fff0;

@@ -1,3 +1,5 @@
+"""This file creates, loads, updates, and saves the user state."""
+
 import json
 import uuid
 from datetime import date
@@ -7,20 +9,18 @@ from flask import session
 from config import HEALTH_MAX
 from db import get_db, now_utc_iso
 
-
+# Clamp a value between a minimum and maximum.
 def clamp(value: int, minimum: int, maximum: int) -> int:
     return max(minimum, min(maximum, value))
 
-
+# Ensure a user ID exists in the session and return it.
 def ensure_user() -> str:
-    """Make sure the current visitor has a user id in session."""
     if "user_id" not in session:
         session["user_id"] = str(uuid.uuid4())
     return session["user_id"]
 
-
+# Return default state for a new user.
 def default_state(user_id: str) -> dict:
-    """Return default state for a new user."""
     return {
         "user_id": user_id,
         "xp": 0,
@@ -42,9 +42,8 @@ def default_state(user_id: str) -> dict:
         "idle_penalty_latched": 0,
     }
 
-
+# Create a user and default state if they do not exist yet.
 def create_user_if_needed(user_id: str) -> None:
-    """Create a user and default state if they do not exist yet."""
     connection = get_db()
 
     # Make sure the tables exist in case the DB file was deleted
@@ -131,9 +130,8 @@ def create_user_if_needed(user_id: str) -> None:
 
     connection.close()
 
-
+# Load and decode one user's state.
 def get_state(user_id: str) -> dict:
-    """Load and decode one user's state."""
     create_user_if_needed(user_id)
 
     connection = get_db()
@@ -148,9 +146,8 @@ def get_state(user_id: str) -> dict:
     state["achievements"] = json.loads(state["achievements_json"])
     return state
 
-
+# Save one user's state back to the database.
 def save_state(user_id: str, state: dict) -> dict:
-    """Save one user's state back to the database."""
     connection = get_db()
     connection.execute(
         """
@@ -199,22 +196,18 @@ def save_state(user_id: str, state: dict) -> dict:
     connection.close()
     return get_state(user_id)
 
-
+# Add an achievement if it is not already in the list.
 def add_achievement(state: dict, achievement_name: str) -> None:
-    """Add an achievement if it is not already in the list."""
     if achievement_name not in state["achievements"]:
         state["achievements"].append(achievement_name)
 
-
+# Calculate the user's level based on their XP.
 def calculate_level_from_xp(xp: int) -> int:
-    """Simple level rule: every 100 XP gives a new level."""
     return 1 + (xp // 100)
 
-
+# Apply daily health decay if the user has not been active today.
 def update_streak_and_last_active_date(state: dict) -> None:
-    """
-    Update reading streak based on the user's last active date.
-    """
+
     today = date.today()
     last_date = state["last_active_date"]
 
@@ -238,7 +231,7 @@ def update_streak_and_last_active_date(state: dict) -> None:
     if state["streak"] == 5:
         add_achievement(state, "5-Day Streak 🔥🔥")
 
-
+# Apply daily health decay if the user has not been active today.
 def reset_health_to_full(state: dict) -> None:
     """Reset health to the maximum value."""
     state["health"] = HEALTH_MAX

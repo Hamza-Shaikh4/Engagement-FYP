@@ -1,3 +1,5 @@
+"""This file defines the page routes for the reading app. It loads user state, prepares page data, checks unlock rules, and renders the HTML templates."""
+
 from datetime import date
 
 from flask import Blueprint, render_template, redirect, url_for, request
@@ -12,13 +14,12 @@ from logic.story_logic import load_stories, get_story, compute_unlocks
 from logic.engagement_logic import apply_inactivity_health_decay
 from db import get_db
 
+# This blueprint groups the browser-facing page routes.
 pages_bp = Blueprint("pages", __name__)
 
 
+# Updates the daily streak when the user visits on a new day.
 def maybe_update_daily_streak(state: dict) -> dict:
-    """
-    Update the user's daily streak when they visit on a new day.
-    """
     today = date.today().isoformat()
     previous_last_active = state["last_active_date"]
 
@@ -29,22 +30,15 @@ def maybe_update_daily_streak(state: dict) -> dict:
     return state
 
 
+# Calculates how much XP the user has earned inside their current level.
 def xp_into_current_level(xp: int) -> tuple[int, int]:
-    """
-    Return:
-    - XP gained inside the current level
-    - XP needed to complete the current level
-    """
     current_level_floor = (max(1, int(xp // 100) + 1) - 1) * 100
     current_level_xp = xp - current_level_floor
     return current_level_xp, 100
 
 
+# Builds the short buddy dialogue shown on the books page.
 def build_books_dialogue(stage_cards: list[dict], state: dict, celebrate: bool) -> list[str]:
-    """
-    Build a short click-through dialogue for the books page.
-    Reward unlocks and quest completions override the normal message.
-    """
     current_stage = next((stage for stage in stage_cards if stage["status"] == "current"), None)
     all_complete = bool(stage_cards) and all(stage["status"] == "completed" for stage in stage_cards)
 
@@ -137,10 +131,8 @@ def build_books_dialogue(stage_cards: list[dict], state: dict, celebrate: bool) 
         "Pick a book to continue.",
     ]
 
+# Creates the quest cards shown on the results/progress page.
 def build_quest_cards(state: dict) -> list[dict]:
-    """
-    Build quest cards for the quests/progress page.
-    """
     completed_books = set(state["completed_books"])
     streak = int(state["streak"])
     health = int(state["health"])
@@ -194,10 +186,8 @@ def build_quest_cards(state: dict) -> list[dict]:
     return quests
 
 
+# Loads and saves the current state before rendering a page.
 def get_current_state() -> tuple[str, dict]:
-    """
-    Helper used by many page routes.
-    """
     user_id = ensure_user()
     state = get_state(user_id)
 
@@ -208,6 +198,7 @@ def get_current_state() -> tuple[str, dict]:
     return user_id, state
 
 
+# Renders the home page and chooses the next book to continue reading.
 @pages_bp.get("/")
 def home():
     user_id, state = get_current_state()
@@ -232,12 +223,14 @@ def home():
     )
 
 
+# Builds the staged book path and renders the books page.
 @pages_bp.get("/books")
 def books():
     user_id, state = get_current_state()
     stories = load_stories()
     unlocks = compute_unlocks(state, stories)
 
+    # Group stories by stage so the page can show a clear reading path.
     grouped = {}
     for story in stories:
         stage_number = int(story.get("stage", 1))
@@ -250,6 +243,7 @@ def books():
         4: {"name": "Shadow Peaks", "icon": "⛰️", "difficulty": "Very Hard"},
     }
 
+    # Stage cards contain the display data needed by the template.
     stage_cards = []
 
     for stage_number in sorted(grouped.keys()):
@@ -310,6 +304,7 @@ def books():
     )
 
 
+# Renders the reading page only if the selected story is unlocked.
 @pages_bp.get("/reading/<story_id>")
 def reading(story_id: str):
     user_id, state = get_current_state()
@@ -326,6 +321,7 @@ def reading(story_id: str):
     )
 
 
+# Renders the progress and quest results page.
 @pages_bp.get("/results")
 def results():
     user_id, state = get_current_state()
@@ -344,12 +340,14 @@ def results():
     )
 
 
+# Loads recent engagement and quiz history for the stats page.
 @pages_bp.get("/stats")
 def stats():
     user_id, state = get_current_state()
 
     connection = get_db()
 
+    # Load the latest engagement predictions for the stats view.
     events = connection.execute(
         """
         SELECT score, label, ts
@@ -361,6 +359,7 @@ def stats():
         (user_id,),
     ).fetchall()
 
+    # Load the latest quiz attempts for the stats view.
     quiz_results = connection.execute(
         """
         SELECT story_id, score, total, passed, created_at
@@ -416,6 +415,7 @@ def stats():
     )
 
 
+# Renders the avatar customisation page with unlocked items.
 @pages_bp.get("/avatar")
 def avatar():
     user_id, state = get_current_state()
@@ -424,6 +424,7 @@ def avatar():
     return render_template("avatar.html", state=state, unlocks=unlocks)
 
 
+# Renders the quiz page only if the story exists and is unlocked.
 @pages_bp.get("/quiz/<story_id>")
 def quiz_page(story_id: str):
     user_id, state = get_current_state()

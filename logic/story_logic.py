@@ -1,35 +1,31 @@
+"""This file loads stories and works out what content is unlocked."""
+
 import json
 from collections import defaultdict
-
 from config import STORIES_PATH
 
-
+# Load all stories from the JSON file.
 def load_stories() -> list[dict]:
-    """Load all stories from stories.json."""
     with open(STORIES_PATH, "r", encoding="utf-8") as story_file:
         return json.load(story_file)
 
-
+# Return one story by id, or None if not found.
 def get_story(story_id: str) -> dict | None:
-    """Return one story by id, or None if not found."""
     for story in load_stories():
         if story["id"] == story_id:
             return story
     return None
 
-
+# Group stories by stage number.
 def group_stories_by_stage(stories: list[dict]) -> dict[int, list[dict]]:
-    """Group stories by stage number."""
     grouped = defaultdict(list)
     for story in stories:
         grouped[int(story.get("stage", 1))].append(story)
     return dict(sorted(grouped.items()))
 
-
+# Work out which books, avatars, and backgrounds are unlocked.
 def compute_unlocks(state: dict, stories: list[dict]) -> dict:
     """
-    Work out which books, avatars, and backgrounds are unlocked.
-
     Rules:
     - Stage 1 is unlocked by default.
     - A later stage unlocks only when all books in the previous stage are completed.

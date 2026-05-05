@@ -1,3 +1,5 @@
+// This file handles the main reading page, including loading the story, tracking engagement, and finishing the book.
+
 let readingStartTime = Date.now();
 let latestTrackerResult = {
   disengagedWindows: 0,

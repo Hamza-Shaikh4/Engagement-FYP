@@ -1,3 +1,5 @@
+// This file collects reading behaviour data and sends it to the backend.
+
 const WINDOW_SECONDS = 10;
 const IDLE_THRESHOLD_MS = 8000;
 

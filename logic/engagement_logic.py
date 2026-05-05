@@ -1,3 +1,5 @@
+"""This file applies engagement rules and saves reading session data."""
+
 from datetime import date
 
 from config import (
@@ -23,11 +25,8 @@ from logic.state_logic import (
     update_streak_and_last_active_date,
 )
 
-
+# Lower health after a long gap in activity.
 def apply_inactivity_health_decay(state: dict) -> dict:
-    """
-    If the user has been away for 2 or more days, reduce health once per day.
-    """
     today = date.today().isoformat()
 
     if state["health_last_decay_date"] == today:
@@ -50,11 +49,9 @@ def apply_inactivity_health_decay(state: dict) -> dict:
     state["health_last_decay_date"] = today
     return state
 
-
+# Apply rewards when a book is finished.
 def mark_book_complete(state: dict, story_id: str) -> dict:
-    """
-    Apply all rewards for completing a book.
-    """
+
     if story_id not in state["completed_books"]:
         state["completed_books"].append(story_id)
         add_achievement(state, f"Finished {story_id.upper()}")
@@ -63,8 +60,7 @@ def mark_book_complete(state: dict, story_id: str) -> dict:
         state["xp"] += 40
         state["level"] = calculate_level_from_xp(state["xp"])
 
-        # Restore a fixed amount of health rather than resetting to full,
-        # so it feels like a meaningful reward without trivialising the health system.
+        # Restore a fixed amount of health 
         state["health"] = clamp(
             state["health"] + BOOK_COMPLETION_HEALTH_RESTORE,
             HEALTH_MIN,
@@ -77,11 +73,10 @@ def mark_book_complete(state: dict, story_id: str) -> dict:
     update_streak_and_last_active_date(state)
     return state
 
-
+# Apply engagement rules based on the current window's label and idle ratio.
 def process_engagement_result(state: dict, score: float, label: str, idle_ratio: float) -> dict:
-    """
-    Apply health and streak rules after one engagement window.
-    """
+
+
     # Engaged for 30 seconds -> +1 health
     if label == "engaged":
         state["engaged_streak_windows"] += 1
@@ -108,21 +103,12 @@ def process_engagement_result(state: dict, score: float, label: str, idle_ratio:
     else:
         state["disengaged_streak_windows"] = 0
 
-    # Idle penalty:
-    # - do not punish one quiet reading pause
-    # - punish repeated high idle
-    # - punish full idle slightly faster
-    # - keep applying damage while the user remains idle
-
+    # Idle penalty
     if idle_ratio >= IDLE_HIGH_THRESHOLD:
         state["idle_streak_windows"] += 1
     else:
         state["idle_streak_windows"] = 0
 
-    # Full idle is stronger evidence than just high idle.
-    # Example:
-    # idle_ratio >= 0.98 for 2 windows = likely left page open
-    # idle_ratio >= 0.85 for 3 windows = likely disengaged
     if idle_ratio >= 0.98:
         required_idle_windows = 2
     else:
@@ -150,18 +136,16 @@ def process_engagement_result(state: dict, score: float, label: str, idle_ratio:
 
     return state
 
-
+# Generate a supportive message based on the engagement label.
 def get_support_message(label: str) -> str:
-    """Return a simple supportive message for the current engagement label."""
     if label == "disengaged":
         return "Tiny goal: read one more paragraph 💛"
     if label == "neutral":
         return "Nice! Keep going — you’re close to an unlock ⭐"
     return "You’re locked in! 🚀"
 
-
+# Log engagement events to the database for later analysis and model training.
 def log_engagement_event(user_id: str, story_id: str, features: dict, score: float, label: str) -> None:
-    """Save one engagement prediction to the database."""
     connection = get_db()
     connection.execute(
         """
@@ -187,9 +171,8 @@ def log_engagement_event(user_id: str, story_id: str, features: dict, score: flo
     connection.commit()
     connection.close()
 
-
+# Create a new reading session record.
 def start_reading_session(user_id: str, story_id: str) -> None:
-    """Record the start of a reading session."""
     connection = get_db()
     connection.execute(
         """
@@ -201,7 +184,7 @@ def start_reading_session(user_id: str, story_id: str) -> None:
     connection.commit()
     connection.close()
 
-
+# Finish the latest reading session for a story.
 def complete_reading_session(
     user_id: str,
     story_id: str,
@@ -209,7 +192,6 @@ def complete_reading_session(
     scroll_depth: float,
     suspicious_reasons: list[str],
 ) -> None:
-    """Update the latest reading session for this story."""
     connection = get_db()
 
     latest_session = connection.execute(

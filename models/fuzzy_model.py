@@ -1,5 +1,7 @@
+"""This file predicts engagement with the fuzzy model."""
+
+# Return the trapezoid membership value
 def trapezoid(value: float, a: float, b: float, c: float, d: float) -> float:
-    """Return trapezoid membership value."""
     if value <= a or value >= d:
         return 0.0
     if b <= value <= c:
@@ -8,9 +10,8 @@ def trapezoid(value: float, a: float, b: float, c: float, d: float) -> float:
         return (value - a) / (b - a)
     return (d - value) / (d - c)
 
-
+# Return the triangle membership value
 def triangle(value: float, a: float, b: float, c: float) -> float:
-    """Return triangle membership value."""
     if value <= a or value >= c:
         return 0.0
     if value == b:
@@ -19,22 +20,13 @@ def triangle(value: float, a: float, b: float, c: float) -> float:
         return (value - a) / (b - a)
     return (c - value) / (c - b)
 
-
+# Keep a score inside the range 0 to 1.
 def clamp_0_1(value: float) -> float:
-    """Keep a score inside the range 0 to 1."""
     return max(0.0, min(1.0, value))
 
-
+# Predict engagement using fuzzy logic.
 def predict_engagement(features: dict) -> dict:
-    """
-    Predict engagement using fuzzy logic.
 
-    Returns:
-        {
-            "score": float between 0 and 1,
-            "label": "engaged" | "neutral" | "disengaged"
-        }
-    """
     idle_ratio = float(features["idle_ratio"])
     scroll_speed = float(features["scroll_speed_px_s"])
     scroll_depth = float(features["scroll_depth_ratio"])
@@ -143,8 +135,6 @@ def predict_engagement(features: dict) -> dict:
     engaged = engaged * (1.0 - 0.25 * burst_high)
     engaged = engaged * (1.0 - 0.35 * ahead_large)
 
-    # If a user is clearly far ahead of expected pace and also bursty,
-    # push the fuzzy output down harder.
     disengaged = max(disengaged, min(ahead_large, burst_high))
     disengaged = max(disengaged, min(ahead_large, speed_fast))
 

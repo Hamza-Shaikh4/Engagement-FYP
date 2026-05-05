@@ -1,3 +1,5 @@
+// This file handles loading and submitting the quiz on the quiz page.
+
 let quizData = [];
 
 async function loadQuiz() {

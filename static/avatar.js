@@ -1,3 +1,5 @@
+// This file handles avatar and background selection on the avatar page.
+
 (async function () {
   const avatarGrid = document.getElementById("avatarGrid");
   const bgGrid = document.getElementById("bgGrid");

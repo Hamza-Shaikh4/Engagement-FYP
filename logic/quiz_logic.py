@@ -1,3 +1,5 @@
+"""This file checks quiz answers and flags suspicious reading sessions."""
+
 from config import (
     RANDOM_END_QUIZ_CHANCE,
     MIN_SCROLL_DEPTH_FOR_FAST_FINISH,
@@ -5,16 +7,13 @@ from config import (
     HIGH_IDLE_THRESHOLD,
 )
 
-
+# Estimate the shortest normal reading time for a story.
 def estimate_min_reading_time_seconds(story_text: str) -> int:
-    """
-    Estimate a very simple minimum reading time from word count.
-    This is used only for suspicious 'finished too fast' detection.
-    """
+
     word_count = len(story_text.split())
     return max(30, int(word_count / 4.0))
 
-
+# List the reasons why a reading session looks suspicious.
 def get_suspicious_reasons(
     story_text: str,
     reading_time: float,
@@ -23,9 +22,7 @@ def get_suspicious_reasons(
     focus_loss_ratio: float,
     idle_ratio: float,
 ) -> list[str]:
-    """
-    Return a list of reasons why a reading session looks suspicious.
-    """
+
     reasons = []
     min_time = estimate_min_reading_time_seconds(story_text)
 
@@ -47,17 +44,13 @@ def get_suspicious_reasons(
 
     return reasons
 
-
+#  Decide if a end quiz should appear.
 def should_trigger_random_end_quiz(random_value: float) -> bool:
-    """Return True if a random end-of-book quiz should be shown."""
     return random_value < RANDOM_END_QUIZ_CHANCE
 
-
+# Grade the quiz answers and determine if the user passed.
 def grade_quiz(quiz: list[dict], answers: list[int]) -> tuple[int, int, bool]:
-    """
-    Mark a quiz and return:
-    (score, total_questions, passed)
-    """
+
     score = 0
 
     for question_index, question in enumerate(quiz):

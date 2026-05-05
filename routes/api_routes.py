@@ -1,3 +1,5 @@
+"""This file defines the backend API routes used by the reading app. It handles user state, stories, reading sessions, engagement tracking, quizzes, calibration, avatars, and backgrounds."""
+
 import random
 from typing import Optional, Tuple, List
 
@@ -22,16 +24,18 @@ from logic.quiz_logic import (
 )
 from models.engagement_model import predict_engagement
 
+# This blueprint groups every API endpoint under the /api URL prefix.
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
+# These settings control how the first book is used to calibrate each user's normal reading pace.
 CALIBRATION_BOOK_ID = "book1"
 CALIBRATION_MIN_WINDOWS = 2
 CALIBRATION_MAX_FOCUS_LOSS = 0.20
 CALIBRATION_MAX_IDLE_RATIO = 0.45
 
 
+# Loads the current user state, applies inactivity health decay, saves it, and returns it.
 def get_current_state() -> Tuple[str, dict]:
-    """Same helper as page routes, but used for API routes."""
     user_id = ensure_user()
     state = get_state(user_id)
     state = apply_inactivity_health_decay(state)
@@ -39,6 +43,7 @@ def get_current_state() -> Tuple[str, dict]:
     return user_id, state
 
 
+# Reads the user's saved calibration data from the database if it exists.
 def get_user_calibration(user_id: str) -> Optional[dict]:
     connection = get_db()
     row = connection.execute(
@@ -53,25 +58,22 @@ def get_user_calibration(user_id: str) -> Optional[dict]:
     return dict(row) if row else None
 
 
+# Estimates the number of words in a story so reading pace can be calculated.
 def estimate_word_count(text: str) -> int:
     return max(1, len(text.split()))
 
 
+# Calculates a basic expected reading time using a default words-per-minute pace.
 def base_expected_reading_seconds(story: dict) -> float:
-    """
-    Rough child-reading baseline.
-    95 words per minute is deliberately conservative.
-    """
+
     word_count = estimate_word_count(story.get("text", ""))
     words_per_second = 95 / 60
     return max(30.0, word_count / words_per_second)
 
 
+# Adjusts expected reading time using the user's calibration result when it is valid.
 def calibrated_pace_factor(calibration: Optional[dict], stories: list[dict]) -> float:
-    """
-    Use Book 1 calibration to slightly scale expected reading time.
-    Clamped so calibration only nudges the model, not dominate it.
-    """
+
     if not calibration:
         return 1.0
 
@@ -93,16 +95,16 @@ def calibrated_pace_factor(calibration: Optional[dict], stories: list[dict]) -> 
     return max(0.75, min(1.60, factor))
 
 
+# Combines the base reading estimate with the user's calibration pace factor.
 def expected_reading_seconds_for_story(story: dict, calibration: Optional[dict], stories: list[dict]) -> float:
     base_seconds = base_expected_reading_seconds(story)
     factor = calibrated_pace_factor(calibration, stories)
     return base_seconds * factor
 
 
+# Starts collecting calibration averages when the user begins the calibration book.
 def start_calibration_aggregate_if_needed(user_id: str, story_id: str) -> None:
-    """
-    Start lightweight aggregation for Book 1 only if no calibration exists yet.
-    """
+
     if story_id != CALIBRATION_BOOK_ID:
         return
 
@@ -123,13 +125,9 @@ def start_calibration_aggregate_if_needed(user_id: str, story_id: str) -> None:
     }
 
 
+# Adds one engagement window into the calibration totals stored in the session.
 def update_calibration_aggregate(features: dict) -> None:
-    """
-    Update Book 1 calibration aggregate.
 
-    focus_loss_ratio is tracked only for validity checks,
-    not as part of the baseline itself.
-    """
     aggregate = session.get("calibration_aggregate")
     if not aggregate:
         return
@@ -157,6 +155,7 @@ def update_calibration_aggregate(features: dict) -> None:
     session["calibration_aggregate"] = aggregate
 
 
+# Validates and saves the user's calibration reading data after the calibration quiz.
 def save_calibration_result(
     user_id: str,
     story_id: str,
@@ -167,9 +166,7 @@ def save_calibration_result(
     passed: bool,
     suspicious_reasons: List[str],
 ) -> Optional[dict]:
-    """
-    Save calibration baseline if the Book 1 session was valid enough.
-    """
+
     aggregate = session.get("calibration_aggregate")
     if not aggregate:
         return None
@@ -256,6 +253,7 @@ def save_calibration_result(
     return dict(row) if row else None
 
 
+# Returns the current user state, unlocks, stories, recent engagement events, and calibration data.
 @api_bp.get("/state")
 def api_state():
     user_id, state = get_current_state()
@@ -289,11 +287,13 @@ def api_state():
     })
 
 
+# Returns all available stories to the frontend.
 @api_bp.get("/stories")
 def api_stories():
     return jsonify(load_stories())
 
 
+# Starts a reading session and prepares calibration tracking when required.
 @api_bp.post("/start_reading")
 def api_start_reading():
     user_id = ensure_user()
@@ -308,6 +308,7 @@ def api_start_reading():
     return jsonify({"ok": True})
 
 
+# Receives tracker features, calculates engagement, updates health, logs the event, and returns feedback.
 @api_bp.post("/engagement")
 def api_engagement():
     user_id = ensure_user()
@@ -322,6 +323,7 @@ def api_engagement():
     story = get_story(story_id)
     stories = load_stories()
 
+    # If the story exists, compare current progress with the expected reading pace.
     if story is not None:
         expected_seconds = expected_reading_seconds_for_story(story, calibration, stories)
         elapsed_reading_time_s = float(features.get("elapsed_reading_time_s", 0.0))
@@ -349,11 +351,13 @@ def api_engagement():
         features["expected_progress_ratio"] = 0.0
         features["ahead_of_expected_ratio"] = 0.0
 
+    # Run the engagement model using the current features and previous HMM state.
     result = predict_engagement(features, previous_state_data=previous_state_data)
 
     score = float(result["score"])
     label = result["label"]
 
+    # Save the HMM probabilities so the next 10-second window has memory.
     if "state_probabilities" in result:
         session["hmm_state_probabilities"] = result["state_probabilities"]
 
@@ -377,6 +381,7 @@ def api_engagement():
     })
 
 
+# Checks whether a completed book looks valid, triggers calibration or quizzes when needed, and awards progress.
 @api_bp.post("/complete_book")
 def api_complete_book():
     user_id = ensure_user()
@@ -402,6 +407,7 @@ def api_complete_book():
         return jsonify({"ok": False, "error": "Story is locked"}), 403
 
     story = get_story(story_id)
+    # Check whether the completion looks suspicious before giving rewards.
     suspicious_reasons = get_suspicious_reasons(
         story_text=story["text"],
         reading_time=reading_time,
@@ -456,6 +462,7 @@ def api_complete_book():
         should_show_quiz = True
         quiz_reason = "random_end_check"
 
+    # Send the user to a quiz when the session needs an extra comprehension check.
     if should_show_quiz:
         session["pending_completion"] = {
             "story_id": story_id,
@@ -483,6 +490,7 @@ def api_complete_book():
     })
 
 
+# Stores the user's self-reported focus answer before sending them to the calibration quiz.
 @api_bp.post("/calibration_response")
 def api_calibration_response():
     payload = request.get_json(force=True)
@@ -507,6 +515,7 @@ def api_calibration_response():
     })
 
 
+# Returns the quiz questions for a story.
 @api_bp.get("/quiz/<story_id>")
 def api_get_quiz(story_id: str):
     story = get_story(story_id)
@@ -520,6 +529,7 @@ def api_get_quiz(story_id: str):
     })
 
 
+# Grades a submitted quiz and applies book completion or calibration results when appropriate.
 @api_bp.post("/quiz/<story_id>")
 def api_submit_quiz(story_id: str):
     user_id = ensure_user()
@@ -585,6 +595,7 @@ def api_submit_quiz(story_id: str):
     })
 
 
+# Saves the selected avatar if the user has unlocked it.
 @api_bp.post("/select_avatar")
 def api_select_avatar():
     user_id = ensure_user()
@@ -604,6 +615,7 @@ def api_select_avatar():
     return jsonify({"ok": True, "state": state})
 
 
+# Saves the selected background if the user has unlocked it.
 @api_bp.post("/select_bg")
 def api_select_bg():
     user_id = ensure_user()

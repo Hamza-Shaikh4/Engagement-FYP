@@ -1,3 +1,5 @@
+"""This file opens the database and sets up the tables."""
+
 import sqlite3
 from datetime import datetime, timezone
 

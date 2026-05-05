@@ -1,13 +1,5 @@
-// =======================================
-// app_state.js
-// - Applies background theme
-// - Updates home screen reading button
-// - Updates health bar if present
-// =======================================
+// This file updates shared page parts like the avatar, health bar, and main read button.
 
-// ---------------------------------------
-// APPLY BACKGROUND THEME
-// ---------------------------------------
 (function () {
   const bg = document.body.getAttribute("data-bg") || "bg-default";
   const root = document.documentElement;
