@@ -42,12 +42,19 @@
 
         <div class="grid" id="avatarGrid">
           {% set all_avatars = [
-            {"id":"blueTrainer","label":"Blue Trainer","img":"/static/avatars/steven-gen6.png"},
-            {"id":"blondeTrainer","label":"Blonde Trainer","img":"/static/avatars/cynthia-gen4.png"}
+            {"id":"blueTrainer","label":"Boy","img":"/static/avatars/steven-gen6.png","placeholder":false},
+            {"id":"blondeTrainer","label":"Girl","img":"/static/avatars/cynthia-gen4.png","placeholder":false},
+
+            {"id":"3","label":"Avatar 3","img":"","placeholder":true},
+            {"id":"4","label":"Avatar 4","img":"","placeholder":true},
+            {"id":"5","label":"Avatar 5","img":"","placeholder":true},
+            {"id":"6","label":"Avatar 6","img":"","placeholder":true},
+            {"id":"7","label":"Avatar 7","img":"","placeholder":true},
+            {"id":"8","label":"Avatar 8","img":"","placeholder":true}
           ] %}
 
           {% for avatar in all_avatars %}
-            {% set unlocked = (avatar.id in unlocks.unlocked_avatars) %}
+            {% set unlocked = (avatar.id in unlocks.unlocked_avatars) and (not avatar.placeholder) %}
 
             {% if unlocked %}
               <button class="card" data-avatar="{{ avatar.id }}" type="button">
@@ -61,11 +68,33 @@
             {% else %}
               <div class="card locked" aria-disabled="true">
                 <div class="lock">🔒</div>
-                <img
-                  src="/static/avatars/default.png"
-                  alt="Locked avatar"
-                  style="width:64px;height:64px;image-rendering:pixelated;opacity:0.8;"
-                />
+
+                {% if avatar.placeholder %}
+                  <div
+                    style="
+                      width:64px;
+                      height:64px;
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                      border-radius:12px;
+                      background:rgba(255,255,255,0.08);
+                      color:var(--muted);
+                      font-size:28px;
+                      font-weight:900;
+                    "
+                    aria-hidden="true"
+                  >
+                    ?
+                  </div>
+                {% else %}
+                  <img
+                    src="/static/avatars/default.png"
+                    alt="Locked avatar"
+                    style="width:64px;height:64px;image-rendering:pixelated;opacity:0.8;"
+                  />
+                {% endif %}
+
                 <div class="label">{{ avatar.label }}</div>
               </div>
             {% endif %}
@@ -77,8 +106,8 @@
         <div class="grid" id="bgGrid">
           {% set all_bgs = [
             {"id":"bg-default","label":"Default 🌈"},
+            {"id":"bg-forest","label":"Forest 🌲"},
             {"id":"bg-space","label":"Space 🚀"},
-            {"id":"bg-forest","label":"Forest 🌲"}
           ] %}
 
           {% for bg in all_bgs %}
