@@ -1,5 +1,5 @@
 const WINDOW_SECONDS = 10;
-const IDLE_THRESHOLD_MS = 18000;
+const IDLE_THRESHOLD_MS = 8000;
 
 const storyId = String(window.STORY_ID || "").trim() || "unknown";
 

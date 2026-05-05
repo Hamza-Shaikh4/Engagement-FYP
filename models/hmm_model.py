@@ -87,9 +87,13 @@ def emission_scores_from_features(features: dict) -> Dict[str, float]:
     # Strongest disengagement evidence
     disengaged_score += focus_loss * 2.15
 
-    # Idle matters, but should not dominate on its own
+    # Idle matters on its own when severe — a user who has left the page
+    # entirely will have both high idle AND high focus_loss, but even idle
+    # alone at ≥0.70 is a meaningful signal.
     if focus_loss > 0.10:
-        disengaged_score += idle_ratio * 0.90
+        disengaged_score += idle_ratio * 1.20   # was 0.90 — stronger when tab also hidden
+    elif idle_ratio >= 0.70:
+        disengaged_score += idle_ratio * 0.55   # was 0.18 — moderate signal for pure idle
     else:
         disengaged_score += idle_ratio * 0.18
 
@@ -176,10 +180,14 @@ def emission_scores_from_features(features: dict) -> Dict[str, float]:
     if focus_loss >= 0.20 and fast_scroll_bursts >= 3:
         disengaged_score += 0.40
 
-    if active_reading_ratio < 0.20:
-        disengaged_score += 0.30
-    elif active_reading_ratio < 0.40:
-        disengaged_score += 0.10
+    # Low active_reading_ratio is suspicious — but protect genuinely slow readers
+    # who scroll slowly and stay focused (slow speed = deliberate reading, not absence).
+    slow_reader_protected = scroll_speed <= 45.0 and idle_ratio < 0.55
+    if not slow_reader_protected:
+        if active_reading_ratio < 0.20:
+            disengaged_score += 0.30
+        elif active_reading_ratio < 0.40:
+            disengaged_score += 0.10
 
     if nav_rate > 8.0:
         disengaged_score += 0.12
@@ -192,6 +200,8 @@ def emission_scores_from_features(features: dict) -> Dict[str, float]:
 
     if 5.0 <= scroll_speed <= 45.0:
         engaged_score += 0.95
+        if idle_ratio < 0.40 and focus_loss < 0.15:
+            engaged_score += 0.35
     elif 45.0 < scroll_speed <= 65.0:
         engaged_score += 0.38
     elif 65.0 < scroll_speed <= 85.0:
@@ -340,16 +350,28 @@ def predict_engagement(
         emission_probabilities=emission_probabilities,
     )
 
+    idle_ratio = float(features.get("idle_ratio", 0.0))
     focus_loss = float(features.get("focus_loss_ratio", 0.0))
     ahead_of_expected_ratio = float(features.get("ahead_of_expected_ratio", 0.0))
     fast_scroll_bursts = float(features.get("fast_scroll_bursts", 0))
     active_reading_ratio = float(features.get("active_reading_ratio", 0.5))
     scroll_speed = float(features.get("scroll_speed_px_s", 0.0))
 
+    # Track repeated full-idle windows.
+    # A single pause-heavy window should not be punished.
+    previous_idle_streak = int(previous_state_data.get("_idle_streak_windows", 0))
+
+    if idle_ratio > 0.95:
+        idle_streak = previous_idle_streak + 1
+    else:
+        idle_streak = 0
+
     # Recovery rule:
-    # faster recovery after cleaner windows
+    # faster recovery after cleaner windows.
+    # Do not recover while the user is in a full-idle streak.
     if (
-        focus_loss < 0.10
+        idle_streak == 0
+        and focus_loss < 0.10
         and ahead_of_expected_ratio < 0.18
         and fast_scroll_bursts <= 1
         and active_reading_ratio >= 0.55
@@ -357,20 +379,48 @@ def predict_engagement(
     ):
         state_probabilities["neutral"] += 0.05
         state_probabilities["engaged"] += 0.03
-        state_probabilities["disengaged"] -= 0.08
+        state_probabilities["disengaged"] = max(
+            0.001,
+            state_probabilities["disengaged"] - 0.08,
+        )
         state_probabilities = normalise(state_probabilities)
 
-    # Strong skim override
+    # Consecutive idle rule:
+    # 1st full-idle window: do nothing, may be a reading/thinking pause.
+    # 2nd full-idle window: start lowering engagement lightly.
+    # 3rd+ full-idle window: increasingly lower engagement each window.
+    if idle_streak >= 2:
+        idle_pressure = min(
+            0.30,
+            0.08 + ((idle_streak - 2) * 0.07),
+        )
+
+        state_probabilities["disengaged"] += idle_pressure
+        state_probabilities["neutral"] += idle_pressure * 0.40
+        state_probabilities["engaged"] -= idle_pressure
+
+        state_probabilities["engaged"] = max(
+            0.001,
+            state_probabilities["engaged"],
+        )
+
+        state_probabilities = normalise(state_probabilities)
+
     if (
         ahead_of_expected_ratio >= 0.75
         or fast_scroll_bursts >= 5
-        or (focus_loss >= 0.30 and ahead_of_expected_ratio >= 0.30)
+        or (focus_loss >= 0.35 and ahead_of_expected_ratio >= 0.35)
     ):
         state_probabilities["engaged"] = min(state_probabilities["engaged"], 0.10)
         state_probabilities = normalise(state_probabilities)
 
     label = label_from_probabilities(state_probabilities)
     score = score_from_label_probabilities(state_probabilities)
+
+    # Store idle streak inside the HMM state data so the next window can use it.
+    # The HMM transition step only reads "disengaged", "neutral", and "engaged",
+    # so this extra key will not interfere with the transition calculation.
+    state_probabilities["_idle_streak_windows"] = idle_streak
 
     return {
         "score": score,

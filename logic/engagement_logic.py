@@ -13,6 +13,7 @@ from config import (
     IDLE_HEALTH_PENALTY,
     INACTIVITY_DAYS_TRIGGER,
     INACTIVITY_HEALTH_PENALTY,
+    BOOK_COMPLETION_HEALTH_RESTORE,
 )
 from db import get_db, now_utc_iso
 from logic.state_logic import (
@@ -20,7 +21,6 @@ from logic.state_logic import (
     add_achievement,
     calculate_level_from_xp,
     update_streak_and_last_active_date,
-    reset_health_to_full,
 )
 
 
@@ -63,7 +63,13 @@ def mark_book_complete(state: dict, story_id: str) -> dict:
         state["xp"] += 40
         state["level"] = calculate_level_from_xp(state["xp"])
 
-        reset_health_to_full(state)
+        # Restore a fixed amount of health rather than resetting to full,
+        # so it feels like a meaningful reward without trivialising the health system.
+        state["health"] = clamp(
+            state["health"] + BOOK_COMPLETION_HEALTH_RESTORE,
+            HEALTH_MIN,
+            HEALTH_MAX,
+        )
 
         if state["level"] > old_level:
             add_achievement(state, f"Level Up! Reached Level {state['level']}")
@@ -102,21 +108,40 @@ def process_engagement_result(state: dict, score: float, label: str, idle_ratio:
     else:
         state["disengaged_streak_windows"] = 0
 
-    # Idle cap: only penalise once until user becomes active again
+    # Idle penalty:
+    # - do not punish one quiet reading pause
+    # - punish repeated high idle
+    # - punish full idle slightly faster
+    # - keep applying damage while the user remains idle
+
     if idle_ratio >= IDLE_HIGH_THRESHOLD:
         state["idle_streak_windows"] += 1
     else:
         state["idle_streak_windows"] = 0
 
-    if (
-        state["idle_penalty_latched"] == 0
-        and state["idle_streak_windows"] >= IDLE_WINDOWS_TRIGGER
-    ):
+    # Full idle is stronger evidence than just high idle.
+    # Example:
+    # idle_ratio >= 0.98 for 2 windows = likely left page open
+    # idle_ratio >= 0.85 for 3 windows = likely disengaged
+    if idle_ratio >= 0.98:
+        required_idle_windows = 2
+    else:
+        required_idle_windows = IDLE_WINDOWS_TRIGGER
+
+    if state["idle_streak_windows"] >= required_idle_windows:
+        extra_penalty = min(
+            3,
+            state["idle_streak_windows"] - required_idle_windows
+        )
+
+        total_idle_penalty = IDLE_HEALTH_PENALTY + extra_penalty
+
         state["health"] = clamp(
-            state["health"] - IDLE_HEALTH_PENALTY,
+            state["health"] - total_idle_penalty,
             HEALTH_MIN,
             HEALTH_MAX,
         )
+
         state["idle_penalty_latched"] = 1
 
     if idle_ratio < IDLE_RECOVER_THRESHOLD:
